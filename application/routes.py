@@ -1,5 +1,7 @@
 from flask import request, jsonify
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
+from postgrest import APIError
+
 from application import app
 from application.repository.user_repository import UserRepository
 
@@ -46,14 +48,18 @@ def buscar_usuario(email):
 
 @app.route("/acesso", methods=['POST'])
 def acessar():
-    login = request.get_json()
-    usuario = [doc.to_dict() for doc in user.findByLogin(login)]
+    try:
+        login = request.get_json()
+        usuario = user.findByLogin(login)
+        print(usuario)
+        if usuario is None or usuario.__len__() == 0:
+            return "Não foi possivel realizar o acesso", 401
 
-    if usuario is None:
-        return "Não foi possivel realizar o acesso", 401
+        token = create_access_token(usuario[0]["id"])
 
-    token = create_access_token(usuario[0]["id"])
-    return token, 200
+        return token, 200
+    except APIError:
+        return 500
 #
 # @app.route("/usuariolocalizacao", methods =  ['GET'])
 # @jwt_required()
