@@ -7,7 +7,6 @@ with open("application/config.json", "r") as f:
 
 supabase = create_client(appsettings["SUPABASE_URL"],appsettings["SUPABASE_KEY"])
 
-
 class PostRepository:
 
     def __init__(self):
