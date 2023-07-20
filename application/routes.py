@@ -3,10 +3,11 @@ from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_requir
 from postgrest import APIError
 
 from application import app
+from application.repository.post_repository import PostRepository
 from application.repository.user_repository import UserRepository
 
 user = UserRepository()
-
+post = PostRepository()
 
 @app.route("/")
 def hello():
@@ -15,52 +16,37 @@ def hello():
 
 @app.route("/criarusuario", methods=['POST'])
 def criar_usuario():
-    modelo = request.get_json()
-    user.createUser(modelo)
+    try:
+        modelo = request.get_json()
 
-    # usuario = user__collection.find_one({"email":  modelo['email']})
-    #
-    # if usuario is not None:
-    #     return "Usuário já existente", 409
-    #
-    # #result = user__collection.insert_one(modelo)
+        if modelo.__len__() == 0:
+            return "Nenhum dado foi enviado", 400
 
-    return "Salvo com sucesso", 201
+        user.createUser(modelo)
 
+        return "Salvo com sucesso", 201
 
-@app.route("/users", methods=['GET'])
-def buscar_usuarios():
-    dados = user.getUsers()
-    result = [doc.to_dict() for doc in dados]
-    return result, 200
+    except APIError as e:
 
+        if e.message.__contains__("duplicate key"):
+            return "Usuário existente", 400
 
-@app.route("/usuario/<email>", methods=['GET'])
-def buscar_usuario(email):
-    # result = user.findByEmail(email)
-    # dado = [doc.to_dict() for doc in result]
-    #
-    # if dado is None:
-    #     return "Usuário não encontrado", 404
-
-    return "dado", 200
+        return "aaa", 400
 
 
 @app.route("/acesso", methods=['POST'])
 def acessar():
-    try:
-        login = request.get_json()
-        usuario = user.findByLogin(login)
-        print(usuario)
-        if usuario is None or usuario.__len__() == 0:
-            return "Não foi possivel realizar o acesso", 401
+    login = request.get_json()
+    usuario = user.findByLogin(login)
+    print(usuario)
+    if usuario is None or usuario.__len__() == 0:
+        return "Não foi possivel realizar o acesso", 401
 
-        token = create_access_token(usuario[0]["id"])
+    token = create_access_token(usuario[0]["id"])
 
-        return token, 200
-    except APIError:
-        return 500
-#
+    return token, 200
+
+
 # @app.route("/usuariolocalizacao", methods =  ['GET'])
 # @jwt_required()
 # def buscarLocalizacaoPorUsuario():
@@ -71,3 +57,11 @@ def acessar():
 #         return "Localização não encontrada", 404
 #
 #     return jsonify(localizacao)
+
+@app.route("/newpost", methods=['POST'])
+@jwt_required()
+def criarPost():
+    current_user = get_jwt_identity()
+    novoPost = request.get_json()
+
+    post.createPost(novoPost)
