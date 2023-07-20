@@ -1,21 +1,18 @@
 import json
-import firebase_admin
-from firebase_admin import credentials, firestore
+from supabase import create_client
 
 with open("application/config.json", "r") as f:
     appsettings = json.load(f)
 
-certificate = credentials.Certificate(appsettings["secrets_path"])
-firebaseApp = firebase_admin.initialize_app(certificate, {'databaseURL': appsettings['database_url']})
-db = firestore.client()
+supabase = create_client(appsettings["SUPABASE_URL"],appsettings["SUPABASE_KEY"])
 
 class GuideRepository:
 
     def __init__(self):
-        self.collection = db.reference("guide")
+        self.collection = supabase.table('guide')
 
     def createGuide(self, guide):
-        self.collection.add(guide)
+        self.collection.insert(guide).execute()
 
     def getGuides(self):
-        return self.collection.stream()
+        return self.collection.select('*').execute()
