@@ -24,7 +24,7 @@ class UserRepository:
     #     return self.collection.select('*').eq('')
 
     def findByLogin(self, login):
-        return self.collection.select('*').eq("username", login["username"]).eq("senha", login["senha"]).execute().data
+        return self.collection.select('*').eq("username", login["username"]).eq("password", login["password"]).execute().data
 
     def findById(self, id):
         return id
