@@ -9,6 +9,7 @@ from application.repository.user_repository import UserRepository
 user = UserRepository()
 post = PostRepository()
 
+
 @app.route("/")
 def hello():
     return "Hello, World!"
