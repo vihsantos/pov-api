@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import request, jsonify
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 from postgrest import APIError
@@ -36,16 +38,21 @@ def criar_usuario():
 
 
 @app.route("/acesso", methods=['POST'])
+
 def acessar():
     login = request.get_json()
+
     usuario = user.findByLogin(login)
-    print(usuario)
+
     if usuario is None or usuario.__len__() == 0:
         return "Não foi possivel realizar o acesso", 401
 
-    token = create_access_token(usuario[0]["id"])
+    result = {
+        "token": create_access_token(usuario[0]["id"]),
+        "acessoem": datetime.now().__str__()
+    }
 
-    return token, 200
+    return jsonify(result), 200
 
 
 # @app.route("/usuariolocalizacao", methods =  ['GET'])
