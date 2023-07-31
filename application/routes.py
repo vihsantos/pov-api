@@ -38,7 +38,6 @@ def criar_usuario():
 
 
 @app.route("/acesso", methods=['POST'])
-
 def acessar():
     login = request.get_json()
 
@@ -70,6 +69,24 @@ def acessar():
 @jwt_required()
 def criarPost():
     current_user = get_jwt_identity()
+    print(current_user)
+
     novoPost = request.get_json()
+    novoPost["user_id"] = current_user
 
     post.createPost(novoPost)
+
+    return "Salvo com sucesso!", 200
+
+
+@app.route("/post/<id>", methods=['GET'])
+@jwt_required()
+def buscarPostPorID(id):
+    current_user = get_jwt_identity()
+
+    data = post.findByID(id)
+
+    if data is None:
+        return "Post não encontrado", 404
+
+    return jsonify(data), 200
