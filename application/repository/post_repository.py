@@ -15,4 +15,7 @@ class PostRepository:
     def createPost(self, post):
         self.collection.insert(post).execute()
 
+    def findByID(self, ID):
+        self.collection.select('*').eq("id", ID).execute()
+
 
