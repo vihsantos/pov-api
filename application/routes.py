@@ -73,6 +73,7 @@ def criarPost():
 
     novoPost = request.get_json()
     novoPost["user_id"] = current_user
+    novoPost["data_criacao"] = datetime.now().__str__()
 
     post.createPost(novoPost)
 
