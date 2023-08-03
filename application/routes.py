@@ -65,11 +65,22 @@ def acessar():
 #
 #     return jsonify(localizacao)
 
+@app.route("/teste", methods=['POST'])
+@jwt_required()
+def enviarImagemPost():
+    current_user = get_jwt_identity()
+
+    file = request.files['arquivo'].read()
+
+    post.salvarPostImage(file, "testeeeee")
+
+    return "Salvo com sucesso!", 200
+
+
 @app.route("/newpost", methods=['POST'])
 @jwt_required()
 def criarPost():
     current_user = get_jwt_identity()
-    print(current_user)
 
     novoPost = request.get_json()
     novoPost["user_id"] = current_user
@@ -78,7 +89,6 @@ def criarPost():
     post.createPost(novoPost)
 
     return "Salvo com sucesso!", 200
-
 
 @app.route("/post/<id>", methods=['GET'])
 @jwt_required()
