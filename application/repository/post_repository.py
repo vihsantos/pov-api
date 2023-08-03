@@ -11,6 +11,7 @@ class PostRepository:
 
     def __init__(self):
         self.collection = supabase.table('post')
+        self.bucket = supabase.storage.from_('pov/posts')
 
     def createPost(self, post):
         self.collection.insert(post).execute()
@@ -18,4 +19,5 @@ class PostRepository:
     def findByID(self, ID):
         self.collection.select('*').eq("id", ID).execute()
 
-
+    def salvarPostImage(self, file, filename):
+        self.bucket.upload(filename, file)
