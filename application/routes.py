@@ -1,3 +1,5 @@
+import json
+import uuid
 from datetime import datetime
 
 from flask import request, jsonify
@@ -72,7 +74,16 @@ def enviarImagemPost():
 
     file = request.files['arquivo'].read()
 
-    post.salvarPostImage(file, "testeeeee")
+    dados = request.values['dados']
+
+    novoPost = json.loads(dados)
+    novoPost["user_id"] = current_user
+    novoPost["data_criacao"] = datetime.now().__str__()
+    novoPost['image_url'] = str(uuid.uuid4())
+
+    post.createPost(novoPost)
+
+    post.salvarPostImage(file, novoPost['image_url'])
 
     return "Salvo com sucesso!", 200
 
