@@ -5,7 +5,8 @@ from supabase import create_client
 with open("application/config.json", "r") as f:
     appsettings = json.load(f)
 
-supabase = create_client(appsettings["SUPABASE_URL"],appsettings["SUPABASE_KEY"])
+supabase = create_client(appsettings["SUPABASE_URL"], appsettings["SUPABASE_KEY"])
+
 
 class PostRepository:
 
@@ -17,7 +18,23 @@ class PostRepository:
         self.collection.insert(post).execute()
 
     def findByID(self, ID):
-        self.collection.select('*').eq("id", ID).execute()
+        return self.collection.select('*').eq("id", ID).execute()
 
-    def salvarPostImage(self, file, filename):
-        self.bucket.upload(filename, file)
+    def salvarPostImage(self, file, filename, type):
+        self.bucket.upload(filename, file, {"content-type": "image/" + type})
+
+    def buscarImagemPost(self, image_url):
+        return self.bucket.download(image_url)
+
+    def buscarUrlImagePost(self, image_url):
+        return self.bucket.get_public_url(image_url)
+
+    def listarPostHome(self):
+        posts = self.collection.select(
+            'id, filename, description, stars, localizacao, user(id, username)').execute().data
+
+        for post in posts:
+            post['image_url'] = self.bucket.get_public_url(post['filename']).__str__()
+            post.pop('filename')
+
+        return posts

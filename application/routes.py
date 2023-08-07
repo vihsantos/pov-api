@@ -1,8 +1,9 @@
+import io
 import json
 import uuid
 from datetime import datetime
 
-from flask import request, jsonify
+from flask import request, jsonify, send_file
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 from postgrest import APIError
 
@@ -73,17 +74,19 @@ def enviarImagemPost():
     current_user = get_jwt_identity()
 
     file = request.files['arquivo'].read()
+    name = request.files['arquivo'].filename.split('.')
+    filename = str(uuid.uuid4()) + '.' + name[1]
+    post.salvarPostImage(file, filename, name[1])
+
 
     dados = request.values['dados']
 
     novoPost = json.loads(dados)
     novoPost["user_id"] = current_user
     novoPost["data_criacao"] = datetime.now().__str__()
-    novoPost['image_url'] = str(uuid.uuid4())
+    novoPost['filename'] = filename
 
     post.createPost(novoPost)
-
-    post.salvarPostImage(file, novoPost['image_url'])
 
     return "Salvo com sucesso!", 200
 
@@ -112,3 +115,14 @@ def buscarPostPorID(id):
         return "Post não encontrado", 404
 
     return jsonify(data), 200
+
+@app.route("/posts", methods=['GET'])
+@jwt_required()
+def getPosts():
+    current_user = get_jwt_identity()
+    posts = post.listarPostHome()
+    if posts is None:
+        return "Nenhum post encontrado!", 404
+
+    return jsonify(posts), 200
+
