@@ -34,7 +34,8 @@ class PostRepository:
             'id, filename, description, stars, localizacao, user(id, username)').execute().data
 
         for post in posts:
-            post['image_url'] = self.bucket.get_public_url(post['filename']).__str__()
+            url = self.bucket.create_signed_url(post['filename'], 180000)
+            post['image_url'] = url["signedURL"]
             post.pop('filename')
 
         return posts
