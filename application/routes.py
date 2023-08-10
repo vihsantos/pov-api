@@ -8,11 +8,13 @@ from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_requir
 from postgrest import APIError
 
 from application import app
+from application.repository.person_repository import PersonRepository
 from application.repository.post_repository import PostRepository
 from application.repository.user_repository import UserRepository
 
 user = UserRepository()
 post = PostRepository()
+person = PersonRepository()
 
 
 @app.route("/")
@@ -28,7 +30,24 @@ def criar_usuario():
         if modelo.__len__() == 0:
             return "Nenhum dado foi enviado", 400
 
-        user.createUser(modelo)
+        if modelo['guide'] is True:
+            return "Olá"
+
+        pessoa = {
+            "nome": modelo["nome"],
+            "data_nascimento": modelo["data_nascimento"],
+            "email": modelo["email"]
+        }
+
+        usuario = {
+            "username": modelo["username"],
+            "password": modelo["password"],
+            "guide": modelo["guide"]
+        }
+
+        person.createPerson(pessoa)
+
+        user.createUser(usuario)
 
         return "Salvo com sucesso", 201
 
