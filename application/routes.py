@@ -145,3 +145,13 @@ def getPosts():
 
     return jsonify(posts), 200
 
+@app.route("/posts/<id>", methods=['GET'])
+@jwt_required()
+def getPostsByUserId(id):
+    current_user = get_jwt_identity()
+
+    posts = post.buscarPostsDoUsuario(id)
+    if posts is None:
+        return "Nenhum post encontrado!", 404
+
+    return jsonify(posts), 200
