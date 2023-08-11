@@ -31,7 +31,19 @@ class PostRepository:
 
     def listarPostHome(self):
         posts = self.collection.select(
-            'id, filename, description, stars, localizacao, user(id, username)').execute().data
+            'id, filename, description, stars, localizacao, user(id, username)').limit(10).order("data_criacao", desc=True).execute().data
+
+        for post in posts:
+            url = self.bucket.create_signed_url(post['filename'], 180000)
+            post['image_url'] = url["signedURL"]
+            post.pop('filename')
+
+        return posts
+
+    def buscarPostsDoUsuario(self, userid):
+        posts = self.collection.select(
+            'id, filename, stars').eq("user_id", userid).order("data_criacao",
+                                                                                                 desc=True).execute().data
 
         for post in posts:
             url = self.bucket.create_signed_url(post['filename'], 180000)
