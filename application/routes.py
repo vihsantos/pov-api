@@ -8,6 +8,7 @@ from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_requir
 from postgrest import APIError
 
 from application import app
+from application.repository.guide_repository import GuideRepository
 from application.repository.person_repository import PersonRepository
 from application.repository.post_repository import PostRepository
 from application.repository.user_repository import UserRepository
@@ -15,8 +16,7 @@ from application.repository.user_repository import UserRepository
 user = UserRepository()
 post = PostRepository()
 person = PersonRepository()
-
-
+guide = GuideRepository()
 @app.route("/")
 def hello():
     return "Hello, World!"
@@ -26,6 +26,7 @@ def hello():
 def criar_usuario():
     try:
         modelo = request.get_json()
+        print(modelo)
 
         if modelo.__len__() == 0:
             return "Nenhum dado foi enviado", 400
