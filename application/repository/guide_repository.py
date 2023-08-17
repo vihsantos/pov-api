@@ -19,6 +19,11 @@ class GuideRepository:
     def getGuides(self):
         return self.collection.select('*').execute()
 
+    def findRegister(self, guide):
+        dado = list(filter(lambda item: item['Número do Certificado'] == guide["cadastur"], self.guideData))
+        return dado
+
+
     def csv_to_list(self,path):
         dicts = []
 
