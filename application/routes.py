@@ -17,8 +17,13 @@ user = UserRepository()
 post = PostRepository()
 person = PersonRepository()
 guide = GuideRepository()
+
+
 @app.route("/")
 def hello():
+    guia = {"cadastur": "44.943.872/0001-69"}
+    dados = guide.findRegister(guia)
+    print(dados)
     return "Hello, World!"
 
 
