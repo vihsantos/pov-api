@@ -21,8 +21,7 @@ guide = GuideRepository()
 
 @app.route("/")
 def hello():
-    guia = {"cadastur": "44.943.872/0001-69"}
-    dados = guide.findRegister(guia)
+    dados = guide.findRegister("44.943.872/0001-69")
     print(dados)
     return "Hello, World!"
 
