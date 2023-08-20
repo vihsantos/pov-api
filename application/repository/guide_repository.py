@@ -20,8 +20,8 @@ class GuideRepository:
         return self.collection.select('*').execute()
 
     def findRegister(self, certificado):
-        dado = list(filter(lambda item: item['Número do Certificado'] == certificado, self.guideData))
-        return dado
+        registro = list(filter(lambda item: item['Número do Certificado'] == certificado, self.guideData))
+        return registro
 
 
     def csv_to_list(self,path):
