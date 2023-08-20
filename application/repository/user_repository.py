@@ -28,3 +28,11 @@ class UserRepository:
 
     def findById(self, id):
         return id
+
+    def findByUsername(self, username):
+        dado = self.collection.select('username').eq("username", username).execute().data
+        if dado.__len__() is not 0:
+            return True
+
+        return False
+
