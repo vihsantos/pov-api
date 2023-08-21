@@ -128,17 +128,17 @@ def criarPost():
 
     return "Salvo com sucesso!", 200
 
-@app.route("/post/<id>", methods=['GET'])
-@jwt_required()
-def buscarPostPorID(id):
-    current_user = get_jwt_identity()
-
-    data = post.findByID(id)
-
-    if data is None:
-        return "Post não encontrado", 404
-
-    return jsonify(data), 200
+#@app.route("/post/<id>", methods=['GET'])
+#@jwt_required()
+#def buscarPostPorID(id):
+ #   current_user = get_jwt_identity()
+#
+ #   data = post.findByID(id)
+#
+ #   if data is None:
+  #      return "Post não encontrado", 404
+#
+ #   return jsonify(data), 200
 
 @app.route("/posts", methods=['GET'])
 @jwt_required()
@@ -150,13 +150,22 @@ def getPosts():
 
     return jsonify(posts), 200
 
-@app.route("/posts/<id>", methods=['GET'])
+@app.route("/posts", methods=['GET'])
 @jwt_required()
-def getPostsByUserId(id):
+def getPostsByUserId():
     current_user = get_jwt_identity()
 
-    posts = post.buscarPostsDoUsuario(id)
+    posts = post.buscarPostsDoUsuario(current_user)
     if posts is None:
         return "Nenhum post encontrado!", 404
 
     return jsonify(posts), 200
+
+@app.route("/post/<id>", methods=['GET'])
+def getPostByID(id):
+    data = post.findByID(id)
+
+    if data is None:
+        return "Post não encontrado!", 404
+
+    return jsonify(data), 200

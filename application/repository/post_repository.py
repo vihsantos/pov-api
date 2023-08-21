@@ -18,7 +18,7 @@ class PostRepository:
         self.collection.insert(post).execute()
 
     def findByID(self, ID):
-        return self.collection.select('*').eq("id", ID).execute()
+        return self.collection.select('*, comment(*), voos(*)').eq("id", ID).execute().data
 
     def salvarPostImage(self, file, filename, type):
         self.bucket.upload(filename, file, {"content-type": "image/" + type})
