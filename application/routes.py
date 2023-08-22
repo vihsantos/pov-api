@@ -169,3 +169,13 @@ def getPostByID(id):
         return "Post não encontrado!", 404
 
     return jsonify(data), 200
+
+@app.route("/profileposts/<id>", methods = ['GET'])
+@jwt_required()
+def findPostProfile(id):
+    data = post.buscarPostsDoUsuario(id);
+
+    if data is None:
+        return "Nenhum post encontrado", 404
+
+    return jsonify(data), 200

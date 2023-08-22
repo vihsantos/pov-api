@@ -42,8 +42,7 @@ class PostRepository:
 
     def buscarPostsDoUsuario(self, userid):
         posts = self.collection.select(
-            'id, filename, stars').eq("user_id", userid).order("data_criacao",
-                                                                                                 desc=True).execute().data
+            'id, filename, stars').eq("user_id", userid).order("data_criacao", desc=True).execute().data
 
         for post in posts:
             url = self.bucket.create_signed_url(post['filename'], 180000)
