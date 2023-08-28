@@ -18,7 +18,14 @@ class PostRepository:
         self.collection.insert(post).execute()
 
     def findByID(self, ID):
-        return self.collection.select('*, comment(*), voos(*)').eq("id", ID).execute().data
+        post = self.collection.select('*, comment(*), voos(*), user(id, username)').eq("id", ID).execute().data
+
+        url = self.bucket.create_signed_url(post[0]['filename'], 180000)
+        post[0]['image_url'] = url["signedURL"]
+        post[0].pop('filename')
+        post[0].pop('user_id')
+
+        return post
 
     def salvarPostImage(self, file, filename, type):
         self.bucket.upload(filename, file, {"content-type": "image/" + type})
@@ -50,3 +57,7 @@ class PostRepository:
             post.pop('filename')
 
         return posts
+
+    def getTopPosts(self):
+        posts = self.collection.select(
+            'id, filename, stars').eq("stars", 5).order("data_criacao", desc=True).execute().data
