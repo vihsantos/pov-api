@@ -15,13 +15,10 @@ class UserRepository:
         self.collection = supabase.table('user')
 
     def createUser(self, user):
-        self.collection.insert(user).execute()
+        return self.collection.insert(user).execute().data
 
     def getUsers(self):
         return self.collection.select('*').execute()
-
-    # def findByEmail(self, email):
-    #     return self.collection.select('*').eq('')
 
     def findByLogin(self, login):
         return self.collection.select('*').eq("username", login["username"]).eq("password", login["password"]).execute().data
@@ -31,7 +28,7 @@ class UserRepository:
 
     def findByUsername(self, username):
         dado = self.collection.select('username').eq("username", username).execute().data
-        if dado.__len__() is not 0:
+        if dado.__len__() != 0:
             return True
 
         return False
