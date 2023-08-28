@@ -1,9 +1,8 @@
-import io
 import json
 import uuid
 from datetime import datetime
 
-from flask import request, jsonify, send_file
+from flask import request, jsonify
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 from postgrest import APIError
 
@@ -32,11 +31,21 @@ def criar_usuario():
         modelo = request.get_json()
         print(modelo)
 
+        guiasalvo = None
+        usuariosalvo = None
+        pessoasalvo = None
+
         if modelo.__len__() == 0:
             return "Nenhum dado foi enviado", 400
 
         if modelo['guide'] is True:
-            return "Olá"
+            guia = {
+                "cod_cadastur": modelo["cadastur"],
+                "areaatuacao": modelo["areatuacao"],
+                "data_vencimento": modelo["data_vencimento"]
+            }
+
+            guiasalvo = guide.createGuide(guia)
 
         pessoa = {
             "nome": modelo["nome"],
@@ -50,9 +59,29 @@ def criar_usuario():
             "guide": modelo["guide"]
         }
 
-        person.createPerson(pessoa)
+        pessoasalvo = person.createPerson(pessoa)
 
-        user.createUser(usuario)
+        usuariosalvo = user.createUser(usuario)
+
+        print(guiasalvo)
+        print(pessoasalvo)
+        print(usuariosalvo)
+
+        userperson = {
+            "user_id": usuariosalvo[0]['id'],
+            "person_id": pessoasalvo[0]['id']
+        }
+
+        person.createUserPerson(userperson)
+
+        if guiasalvo != None:
+            guideperson = {
+                "user_id": usuariosalvo[0]['id'],
+                "guide_id": guiasalvo[0]['id'],
+                "person_id": pessoasalvo[0]['id']
+            }
+
+            guide.createUserGuide(guideperson)
 
         return "Salvo com sucesso", 201
 
@@ -164,11 +193,12 @@ def getPostsByUserId():
 @app.route("/post/<id>", methods=['GET'])
 def getPostByID(id):
     data = post.findByID(id)
+    print(data[0])
 
     if data is None:
         return "Post não encontrado!", 404
 
-    return jsonify(data), 200
+    return data[0], 200
 
 @app.route("/profileposts/<id>", methods = ['GET'])
 @jwt_required()
