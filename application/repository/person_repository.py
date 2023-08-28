@@ -10,6 +10,11 @@ supabase = create_client(appsettings["SUPABASE_URL"],appsettings["SUPABASE_KEY"]
 class PersonRepository:
     def __init__(self):
         self.collection = supabase.table('person')
+        self.collection_userperson = supabase.table('user_person')
+        self.bucket = supabase.storage.from_('pov/person')
 
     def createPerson(self, person):
-        self.collection.insert(person).execute()
+        return self.collection.insert(person).execute().data
+
+    def createUserPerson(self, userperson):
+        return self.collection_userperson.insert(userperson).execute().data
