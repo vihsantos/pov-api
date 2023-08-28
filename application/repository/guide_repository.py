@@ -11,10 +11,11 @@ supabase = create_client(appsettings["SUPABASE_URL"],appsettings["SUPABASE_KEY"]
 class GuideRepository:
     def __init__(self):
         self.collection = supabase.table('guide')
+        self.collection_userguide = supabase.table('user_guide')
         self.guideData = self.csv_to_list("application/services/guia-de-turismo.csv")
 
     def createGuide(self, guide):
-        self.collection.insert(guide).execute()
+        return self.collection.insert(guide).execute().data
 
     def getGuides(self):
         return self.collection.select('*').execute()
@@ -37,3 +38,6 @@ class GuideRepository:
                 # add this python dict in list
                 dicts.append(row)
         return dicts
+
+    def createUserGuide(self, guidePerson):
+        return self.collection_userguide.insert(guidePerson).execute().data
