@@ -45,6 +45,11 @@ def criar_usuario():
                 "data_vencimento": modelo["data_vencimento"]
             }
 
+            registro = guide.findRegister(guia['cod_cadastur'])
+
+            if registro is None:
+                return 'Registro não encontrado', 404
+
             guiasalvo = guide.createGuide(guia)
 
         pessoa = {
@@ -209,3 +214,9 @@ def findPostProfile(id):
         return "Nenhum post encontrado", 404
 
     return jsonify(data), 200
+
+@app.route("/guides", methods = ['GET'])
+def getGuides():
+    guide.getGuides()
+
+    return 'Olá', 200
