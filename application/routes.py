@@ -216,7 +216,11 @@ def findPostProfile(id):
     return jsonify(data), 200
 
 @app.route("/guides", methods = ['GET'])
+@jwt_required()
 def getGuides():
-    guide.getGuides()
+    guias = guide.getGuides()
 
-    return 'Olá', 200
+    if guias is None:
+        return "Nenhum guia encontrado", 404
+
+    return guias, 200

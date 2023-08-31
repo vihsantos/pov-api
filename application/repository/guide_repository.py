@@ -24,6 +24,16 @@ class GuideRepository:
         registro = list(filter(lambda item: item['Número do Certificado'] == certificado, self.guideData))
         return registro
 
+    def getGuides(self):
+        guias = self.collection_userguide.select('guide(areaatuacao, cod_cadastur), user(id, username), person(filename)').execute().data
+        for guia in guias:
+
+            filename = guia['person']['filename']
+            guia.pop('person')
+
+            guia['user']['profileicon'] = filename if filename is None else ""
+
+        return guias
 
     def csv_to_list(self,path):
         dicts = []
