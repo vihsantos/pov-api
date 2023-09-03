@@ -31,7 +31,7 @@ class GuideRepository:
             filename = guia['person']['filename']
             guia.pop('person')
 
-            guia['user']['profileicon'] = filename if filename is None else ""
+            guia['user']['profileicon'] = filename if "" else ""
 
         return guias
 
