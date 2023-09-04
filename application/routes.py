@@ -109,22 +109,11 @@ def acessar():
 
     result = {
         "token": create_access_token(usuario[0]["id"]),
-        "acessoem": datetime.now().__str__()
+        "userid": usuario[0]['id'],
+        "guide": usuario[0]['guide']
     }
 
     return jsonify(result), 200
-
-
-# @app.route("/usuariolocalizacao", methods =  ['GET'])
-# @jwt_required()
-# def buscarLocalizacaoPorUsuario():
-#     current_user = get_jwt_identity()
-#     localizacao = user__collection.find_one({"_id": ObjectId(current_user['$oid'])}, {"_id": 0, "localizacao": 1})
-#
-#     if localizacao is None:
-#         return "Localização não encontrada", 404
-#
-#     return jsonify(localizacao)
 
 @app.route("/teste", methods=['POST'])
 @jwt_required()
@@ -161,18 +150,6 @@ def criarPost():
     post.createPost(novoPost)
 
     return "Salvo com sucesso!", 200
-
-#@app.route("/post/<id>", methods=['GET'])
-#@jwt_required()
-#def buscarPostPorID(id):
- #   current_user = get_jwt_identity()
-#
- #   data = post.findByID(id)
-#
- #   if data is None:
-  #      return "Post não encontrado", 404
-#
- #   return jsonify(data), 200
 
 @app.route("/posts", methods=['GET'])
 @jwt_required()
