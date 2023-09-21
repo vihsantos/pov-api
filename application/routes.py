@@ -7,6 +7,7 @@ from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_requir
 from postgrest import APIError
 
 from application import app
+from application.repository.followers_repository import FollowersRepository
 from application.repository.guide_repository import GuideRepository
 from application.repository.person_repository import PersonRepository
 from application.repository.post_repository import PostRepository
@@ -16,6 +17,7 @@ user = UserRepository()
 post = PostRepository()
 person = PersonRepository()
 guide = GuideRepository()
+followers = FollowersRepository()
 
 
 @app.route("/")
@@ -115,6 +117,7 @@ def acessar():
 
     return jsonify(result), 200
 
+
 @app.route("/teste", methods=['POST'])
 @jwt_required()
 def enviarImagemPost():
@@ -124,7 +127,6 @@ def enviarImagemPost():
     name = request.files['arquivo'].filename.split('.')
     filename = str(uuid.uuid4()) + '.' + name[1]
     post.salvarPostImage(file, filename, name[1])
-
 
     dados = request.values['dados']
 
@@ -151,6 +153,7 @@ def criarPost():
 
     return "Salvo com sucesso!", 200
 
+
 @app.route("/posts", methods=['GET'])
 @jwt_required()
 def getPosts():
@@ -160,6 +163,7 @@ def getPosts():
         return "Nenhum post encontrado!", 404
 
     return jsonify(posts), 200
+
 
 @app.route("/posts", methods=['GET'])
 @jwt_required()
@@ -172,6 +176,7 @@ def getPostsByUserId():
 
     return jsonify(posts), 200
 
+
 @app.route("/post/<id>", methods=['GET'])
 def getPostByID(id):
     data = post.findByID(id)
@@ -182,7 +187,8 @@ def getPostByID(id):
 
     return data[0], 200
 
-@app.route("/profileposts/<id>", methods = ['GET'])
+
+@app.route("/profileposts/<id>", methods=['GET'])
 @jwt_required()
 def findPostProfile(id):
     data = post.buscarPostsDoUsuario(id);
@@ -192,7 +198,8 @@ def findPostProfile(id):
 
     return jsonify(data), 200
 
-@app.route("/guides", methods = ['GET'])
+
+@app.route("/guides", methods=['GET'])
 @jwt_required()
 def getGuides():
     guias = guide.getGuides()
@@ -201,3 +208,23 @@ def getGuides():
         return "Nenhum guia encontrado", 404
 
     return guias, 200
+
+
+@app.route("/following", methods=['POST'])
+@jwt_required()
+def following():
+    current_user = get_jwt_identity()
+
+    follow = request.get_json()
+
+    followers.follow(follow)
+
+    return "Salvo com sucesso!", 200
+
+
+@app.route("/unfollow", methods=['DELETE'])
+@jwt_required()
+def following():
+    current_user = get_jwt_identity()
+
+    return "Salvo com sucesso!", 200
