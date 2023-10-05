@@ -9,6 +9,7 @@ from postgrest import APIError
 from application import app
 from application.repository.followers_repository import FollowersRepository
 from application.repository.guide_repository import GuideRepository
+from application.repository.localization_repository import LocalizationRepository
 from application.repository.person_repository import PersonRepository
 from application.repository.post_repository import PostRepository
 from application.repository.user_repository import UserRepository
@@ -18,6 +19,7 @@ post = PostRepository()
 person = PersonRepository()
 guide = GuideRepository()
 followers = FollowersRepository()
+localizations = LocalizationRepository()
 
 
 @app.route("/")
@@ -135,7 +137,12 @@ def enviarImagemPost():
     novoPost["data_criacao"] = datetime.now().__str__()
     novoPost['filename'] = filename
 
-    post.createPost(novoPost)
+    localization = novoPost["localization"]
+    novoPost['localization'] = localizations.createLocalization(localization)['id']
+
+    print(novoPost)
+
+    #post.createPost(novoPost)
 
     return "Salvo com sucesso!", 200
 
@@ -148,9 +155,11 @@ def criarPost():
     novoPost = request.get_json()
     novoPost["user_id"] = current_user
     novoPost["data_criacao"] = datetime.now().__str__()
+    localization = novoPost["localization"]
+    novoPost['localization'] = localizations.createLocalization(localization)['id']
 
-    post.createPost(novoPost)
-
+    print(novoPost)
+    #post.createPost(novoPost)
     return "Salvo com sucesso!", 200
 
 
@@ -224,7 +233,14 @@ def following():
 
 @app.route("/unfollow", methods=['DELETE'])
 @jwt_required()
-def following():
+def unfollow():
     current_user = get_jwt_identity()
 
     return "Salvo com sucesso!", 200
+
+@app.route("/usuario/<id>", methods=['GET'])
+@jwt_required()
+def buscarUsuario():
+    current_user = get_jwt_identity()
+
+    return "oi", 200
