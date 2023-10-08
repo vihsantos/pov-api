@@ -138,28 +138,13 @@ def enviarImagemPost():
     novoPost['filename'] = filename
 
     localization = novoPost["localization"]
-    novoPost['localization'] = localizations.createLocalization(localization)['id']
 
-    print(novoPost)
+    localizacaoCriada = localizations.createLocalization(localization)
 
-    #post.createPost(novoPost)
+    novoPost['localization'] = localizacaoCriada[0]['id']
 
-    return "Salvo com sucesso!", 200
+    post.createPost(novoPost)
 
-
-@app.route("/newpost", methods=['POST'])
-@jwt_required()
-def criarPost():
-    current_user = get_jwt_identity()
-
-    novoPost = request.get_json()
-    novoPost["user_id"] = current_user
-    novoPost["data_criacao"] = datetime.now().__str__()
-    localization = novoPost["localization"]
-    novoPost['localization'] = localizations.createLocalization(localization)['id']
-
-    print(novoPost)
-    #post.createPost(novoPost)
     return "Salvo com sucesso!", 200
 
 
@@ -168,6 +153,7 @@ def criarPost():
 def getPosts():
     current_user = get_jwt_identity()
     posts = post.listarPostHome()
+
     if posts is None:
         return "Nenhum post encontrado!", 404
 
@@ -200,7 +186,7 @@ def getPostByID(id):
 @app.route("/profileposts/<id>", methods=['GET'])
 @jwt_required()
 def findPostProfile(id):
-    data = post.buscarPostsDoUsuario(id);
+    data = post.buscarPostsDoUsuario(id)
 
     if data is None:
         return "Nenhum post encontrado", 404
@@ -240,7 +226,20 @@ def unfollow():
 
 @app.route("/usuario/<id>", methods=['GET'])
 @jwt_required()
-def buscarUsuario():
+def buscarUsuario(id):
     current_user = get_jwt_identity()
 
-    return "oi", 200
+    usuario = user.findById(id)
+
+    if usuario is None:
+        return "Usuário não encontrado", 404
+
+    seguidores = followers.getFollowersByID(id)
+    seguindo = followers.getFollowingByID(id)
+
+    usuario[0]["followers"] = seguidores
+    usuario[0]["following"] = seguindo
+
+
+
+    return usuario, 200
