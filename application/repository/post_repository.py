@@ -18,7 +18,7 @@ class PostRepository:
         self.collection.insert(post).execute()
 
     def findByID(self, ID):
-        post = self.collection.select('*, comment(*), voos(*), user(id, username)').eq("id", ID).execute().data
+        post = self.collection.select('*, localization(lat, long, local), comment(*), voos(*), user(id, username)').eq("id", ID).execute().data
 
         url = self.bucket.create_signed_url(post[0]['filename'], 180000)
         post[0]['image_url'] = url["signedURL"]
@@ -38,7 +38,7 @@ class PostRepository:
 
     def listarPostHome(self):
         posts = self.collection.select(
-            'id, filename, description, stars, localization(*), user(id, username)').limit(10).order("data_criacao", desc=True).execute().data
+            'id, filename, description, stars, localization(lat, long, local), user(id, username)').limit(10).order("data_criacao", desc=True).execute().data
 
         for post in posts:
             url = self.bucket.create_signed_url(post['filename'], 180000)
