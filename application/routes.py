@@ -175,7 +175,6 @@ def getPostsByUserId():
 @app.route("/post/<id>", methods=['GET'])
 def getPostByID(id):
     data = post.findByID(id)
-    print(data[0])
 
     if data is None:
         return "Post não encontrado!", 404
@@ -208,7 +207,6 @@ def getGuides():
 @app.route("/following", methods=['POST'])
 @jwt_required()
 def following():
-    current_user = get_jwt_identity()
 
     follow = request.get_json()
 
@@ -224,10 +222,9 @@ def unfollow():
 
     return "Salvo com sucesso!", 200
 
+
 @app.route("/usuario/<id>", methods=['GET'])
-@jwt_required()
 def buscarUsuario(id):
-    current_user = get_jwt_identity()
 
     usuario = user.findById(id)
 
@@ -240,6 +237,4 @@ def buscarUsuario(id):
     usuario[0]["followers"] = seguidores
     usuario[0]["following"] = seguindo
 
-
-
-    return usuario, 200
+    return usuario[0], 200
