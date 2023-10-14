@@ -238,3 +238,12 @@ def buscarUsuario(id):
     usuario[0]["following"] = seguindo
 
     return usuario[0], 200
+
+@app.route("/ranking/local", methods=['GET'])
+@jwt_required()
+def gerRankingByLocal():
+    current_user = get_jwt_identity()
+
+    dados = post.getTopPostsByLocal()
+
+    return dados, 200
