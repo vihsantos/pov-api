@@ -14,6 +14,7 @@ class PostRepository:
         self.collection = supabase.table('post')
         self.bucket = supabase.storage.from_('pov/posts')
 
+
     def createPost(self, post):
         self.collection.insert(post).execute()
 
@@ -61,3 +62,9 @@ class PostRepository:
     def getTopPosts(self):
         posts = self.collection.select(
             'id, filename, stars').eq("stars", 5).order("data_criacao", desc=True).execute().data
+
+    def getTopPostsByLocal(self):
+        posts = supabase.rpc('ranking_by_local', params={}).execute().data
+
+        return posts
+
