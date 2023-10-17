@@ -181,6 +181,14 @@ def getPostByID(id):
 
     return data[0], 200
 
+@app.route("/ranking/local", methods=['GET'])
+@jwt_required()
+def getRankingByLocal():
+    current_user = get_jwt_identity()
+
+    dados = post.getTopPostsByLocal()
+
+    return dados, 200
 
 @app.route("/profileposts/<id>", methods=['GET'])
 @jwt_required()
@@ -204,6 +212,24 @@ def getGuides():
     return guias, 200
 
 
+@app.route("/usuario/<id>", methods=['GET'])
+@jwt_required()
+def buscarUsuario(id):
+    current_user = get_jwt_identity()
+
+    usuario = user.findById(id)
+
+    if usuario is None:
+        return "Usuário não encontrado", 404
+
+    seguidores = followers.getFollowersByID(id)
+    seguindo = followers.getFollowingByID(id)
+
+    usuario[0]["followers"] = seguidores
+    usuario[0]["following"] = seguindo
+
+    return usuario[0], 200
+
 @app.route("/following", methods=['POST'])
 @jwt_required()
 def following():
@@ -221,29 +247,3 @@ def unfollow():
     current_user = get_jwt_identity()
 
     return "Salvo com sucesso!", 200
-
-
-@app.route("/usuario/<id>", methods=['GET'])
-def buscarUsuario(id):
-
-    usuario = user.findById(id)
-
-    if usuario is None:
-        return "Usuário não encontrado", 404
-
-    seguidores = followers.getFollowersByID(id)
-    seguindo = followers.getFollowingByID(id)
-
-    usuario[0]["followers"] = seguidores
-    usuario[0]["following"] = seguindo
-
-    return usuario[0], 200
-
-@app.route("/ranking/local", methods=['GET'])
-@jwt_required()
-def gerRankingByLocal():
-    current_user = get_jwt_identity()
-
-    dados = post.getTopPostsByLocal()
-
-    return dados, 200
