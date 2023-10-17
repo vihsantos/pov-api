@@ -152,7 +152,7 @@ def enviarImagemPost():
 @jwt_required()
 def getPosts():
     current_user = get_jwt_identity()
-    posts = post.listarPostHome()
+    posts = post.listarTopPostsHome()
 
     if posts is None:
         return "Nenhum post encontrado!", 404

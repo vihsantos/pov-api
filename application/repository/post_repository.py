@@ -28,8 +28,8 @@ class PostRepository:
 
         return post
 
-    def salvarPostImage(self, file, filename, type):
-        self.bucket.upload(filename, file, {"content-type": "image/" + type})
+    def salvarPostImage(self, file, filename, tipo):
+        self.bucket.upload(filename, file, {"content-type": "image/" + tipo})
 
     def buscarImagemPost(self, image_url):
         return self.bucket.download(image_url)
@@ -37,9 +37,9 @@ class PostRepository:
     def buscarUrlImagePost(self, image_url):
         return self.bucket.get_public_url(image_url)
 
-    def listarPostHome(self):
+    def listarTopPostsHome(self):
         posts = self.collection.select(
-            'id, filename, description, stars, localization(lat, long, local), user(id, username)').limit(10).order("data_criacao", desc=True).execute().data
+            'id, filename, description, stars, localization(lat, long, local), user(id, username)').eq("stars", 5).limit(10).order("data_criacao", desc=True).execute().data
 
         for post in posts:
             url = self.bucket.create_signed_url(post['filename'], 180000)
