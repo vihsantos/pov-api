@@ -13,6 +13,7 @@ class UserRepository:
 
     def __init__(self):
         self.collection = supabase.table('user')
+        self.bucket = supabase.storage.from_('pov/profile')
 
     def createUser(self, user):
         return self.collection.insert(user).execute().data
@@ -32,4 +33,8 @@ class UserRepository:
             return True
 
         return False
+    def saveProfilePhoto(self, file, filename, tipo, id):
+        self.collection.update({'filename': filename}).eq('id', id).execute()
+
+        self.bucket.upload(filename, file, {"content-type": "image/" + tipo})
 
