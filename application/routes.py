@@ -12,6 +12,7 @@ from application.repository.guide_repository import GuideRepository
 from application.repository.localization_repository import LocalizationRepository
 from application.repository.person_repository import PersonRepository
 from application.repository.post_repository import PostRepository
+from application.repository.trail_repository import TrailRepository
 from application.repository.user_repository import UserRepository
 
 user = UserRepository()
@@ -20,6 +21,7 @@ person = PersonRepository()
 guide = GuideRepository()
 followers = FollowersRepository()
 localizations = LocalizationRepository()
+trail = TrailRepository()
 
 
 @app.route("/")
@@ -120,9 +122,9 @@ def acessar():
     return jsonify(result), 200
 
 
-@app.route("/teste", methods=['POST'])
+@app.route("/newpost", methods=['POST'])
 @jwt_required()
-def enviarImagemPost():
+def criarNovoPost():
     current_user = get_jwt_identity()
 
     file = request.files['arquivo'].read()
@@ -151,7 +153,6 @@ def enviarImagemPost():
 @app.route("/posts", methods=['GET'])
 @jwt_required()
 def getPosts():
-    current_user = get_jwt_identity()
     posts = post.listarTopPostsHome()
 
     if posts is None:
@@ -184,7 +185,6 @@ def getPostByID(id):
 @app.route("/ranking/local", methods=['GET'])
 @jwt_required()
 def getRankingByLocal():
-    current_user = get_jwt_identity()
 
     dados = post.getTopPostsByLocal()
 
@@ -215,8 +215,6 @@ def getGuides():
 @app.route("/usuario/<id>", methods=['GET'])
 @jwt_required()
 def buscarUsuario(id):
-    current_user = get_jwt_identity()
-
     usuario = user.findById(id)
 
     if usuario is None:
@@ -245,5 +243,32 @@ def following():
 @jwt_required()
 def unfollow():
     current_user = get_jwt_identity()
+
+    return "Salvo com sucesso!", 200
+
+@app.route("/newtrail", methods=['DELETE'])
+@jwt_required()
+def novaTrilha():
+    current_user = get_jwt_identity()
+
+    file = request.files['arquivo'].read()
+    name = request.files['arquivo'].filename.split('.')
+    filename = str(uuid.uuid4()) + '.' + name[1]
+    post.salvarPostImage(file, filename, name[1])
+
+    dados = request.values['dados']
+
+    trilha = json.loads(dados)
+    trilha["user_id"] = current_user
+    trilha["data_criacao"] = datetime.now().__str__()
+    trilha['filename'] = filename
+
+    localization = trilha["localization"]
+
+    localizacaoCriada = localizations.createLocalization(localization)
+
+    trilha['localization'] = localizacaoCriada[0]['id']
+
+    trail.createTrail(trilha)
 
     return "Salvo com sucesso!", 200
