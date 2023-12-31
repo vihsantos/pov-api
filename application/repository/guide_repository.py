@@ -33,6 +33,8 @@ class GuideRepository:
 
             guia['user']['profileicon'] = filename if "" else ""
 
+
+
         return guias
 
     def csv_to_list(self,path):

@@ -10,11 +10,25 @@ supabase = create_client(appsettings["SUPABASE_URL"], appsettings["SUPABASE_KEY"
 
 class TrailRepository:
     def __init__(self):
-        self.collection = supabase.table('trail')
+        self.collection = supabase.table('trails')
         self.bucket = supabase.storage.from_('pov/trail')
 
     def createTrail(self, trail):
-        self.collection.insert(trail).execute()
+        self.collection.upsert(trail).execute()
 
     def salvarTrailImage(self, file, filename, tipo):
         self.bucket.upload(filename, file, {"content-type": "image/" + tipo})
+
+    def buscarTrilhasDoGuia(self, id):
+        trilhas = self.collection.select('id, name, description, occupation, files, user(id, username)').eq('user', id)
+
+        for trilha in trilhas:
+            arquivos = trilha['files'].split(';')
+            urls = ''
+
+            for arq in arquivos:
+                urls += self.bucket.create_signed_url(arq) + ';'
+
+            trilhas['filename'] = urls
+
+        return trilhas

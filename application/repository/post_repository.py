@@ -21,6 +21,10 @@ class PostRepository:
         post = self.collection.select('*, localization(lat, long, local), comment(*), voos(*), user(id, username)').eq(
             "id", ID).execute().data
 
+        url = self.bucket.create_signed_url(post[0]['filename'], 180000)
+        post[0]['image_url'] = url["signedURL"]
+        post[0].pop('filename')
+        post[0].pop('user_id')
         return post
 
     def salvarPostImage(self, file, filename, tipo):
@@ -34,11 +38,21 @@ class PostRepository:
             'id, filename, description, stars, localization(lat, long, local), '
             'user(id, username)').eq("stars", 5).limit(10).order("data_criacao", desc=True).execute().data
 
+        for post in posts:
+            url = self.bucket.create_signed_url(post['filename'], 180000)
+            post['image_url'] = url["signedURL"]
+            post.pop('filename')
+
         return posts
 
     def buscarPostsDoUsuario(self, userid):
         posts = self.collection.select(
             'id, filename, stars').eq("user_id", userid).order("data_criacao", desc=True).execute().data
+
+        for post in posts:
+            url = self.bucket.create_signed_url(post['filename'], 180000)
+            post['image_url'] = url["signedURL"]
+            post.pop('filename')
 
         return posts
 
