@@ -23,14 +23,6 @@ followers = FollowersRepository()
 localizations = LocalizationRepository()
 trail = TrailRepository()
 
-
-@app.route("/")
-def hello():
-    dados = guide.findRegister("44.943.872/0001-69")
-    print(dados)
-    return "Hello, World!"
-
-
 @app.route("/criarusuario", methods=['POST'])
 def criar_usuario():
     try:
@@ -74,10 +66,6 @@ def criar_usuario():
 
         usuariosalvo = user.createUser(usuario)
 
-        print(guiasalvo)
-        print(pessoasalvo)
-        print(usuariosalvo)
-
         userperson = {
             "user_id": usuariosalvo[0]['id'],
             "person_id": pessoasalvo[0]['id']
@@ -85,7 +73,7 @@ def criar_usuario():
 
         person.createUserPerson(userperson)
 
-        if guiasalvo != None:
+        if guiasalvo is not None:
             guideperson = {
                 "user_id": usuariosalvo[0]['id'],
                 "guide_id": guiasalvo[0]['id'],
@@ -101,7 +89,7 @@ def criar_usuario():
         if e.message.__contains__("duplicate key"):
             return "Usuário existente", 400
 
-        return "aaa", 400
+        return "Ops! Ocorreu um erro!", 500
 
 
 @app.route("/acesso", methods=['POST'])
@@ -155,18 +143,6 @@ def criarNovoPost():
 def getPosts():
     posts = post.listarTopPostsHome()
 
-    if posts is None:
-        return "Nenhum post encontrado!", 404
-
-    return jsonify(posts), 200
-
-
-@app.route("/posts", methods=['GET'])
-@jwt_required()
-def getPostsByUserId():
-    current_user = get_jwt_identity()
-
-    posts = post.buscarPostsDoUsuario(current_user)
     if posts is None:
         return "Nenhum post encontrado!", 404
 
@@ -228,6 +204,7 @@ def buscarUsuario(id):
 
     return usuario[0], 200
 
+
 @app.route("/following", methods=['POST'])
 @jwt_required()
 def following():
@@ -246,29 +223,38 @@ def unfollow():
 
     return "Salvo com sucesso!", 200
 
-@app.route("/newtrail", methods=['DELETE'])
+
+@app.route("/newtrail", methods=['POST'])
 @jwt_required()
 def novaTrilha():
     current_user = get_jwt_identity()
 
-    file = request.files['arquivo'].read()
-    name = request.files['arquivo'].filename.split('.')
-    filename = str(uuid.uuid4()) + '.' + name[1]
-    post.salvarPostImage(file, filename, name[1])
+    filenames = ""
 
-    dados = request.values['dados']
+    arquivos = request.files
 
-    trilha = json.loads(dados)
-    trilha["user_id"] = current_user
-    trilha["data_criacao"] = datetime.now().__str__()
-    trilha['filename'] = filename
+    trilhaInformacoes = json.loads(request.values['dados'])
 
-    localization = trilha["localization"]
+    for file in arquivos:
+        nomes = file.split('.')
+        nomeArquivo = str(uuid.uuid4()) + '.' + nomes[1]
+        filenames += nomeArquivo + ";"
+        trail.salvarTrailImage(arquivos[file].read(), nomeArquivo, nomes[1])
 
-    localizacaoCriada = localizations.createLocalization(localization)
+    trilhaInformacoes['files'] = filenames
+    trilhaInformacoes['user'] = current_user
+    trilhaInformacoes["data_criacao"] = datetime.now().__str__()
 
-    trilha['localization'] = localizacaoCriada[0]['id']
-
-    trail.createTrail(trilha)
+    trail.createTrail(trilhaInformacoes)
 
     return "Salvo com sucesso!", 200
+
+@app.route("/trails/<id>", methods=['GET'])
+@jwt_required()
+def buscarTrilhasPorUsuario(id):
+    trilhas = trail.buscarTrilhasDoGuia(id)
+
+    if trilhas is None:
+        return "Nada encontrado", 404
+
+    return trilhas
