@@ -258,3 +258,13 @@ def buscarTrilhasPorUsuario(id):
         return "Nada encontrado", 404
 
     return trilhas
+
+@app.route("/trails", methods=['GET'])
+@jwt_required()
+def buscarTrilhas():
+    trilhas = trail.buscarTrilhasRecentes()
+
+    if trilhas is None:
+        return "Nada encontrado", 404
+
+    return trilhas
