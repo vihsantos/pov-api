@@ -32,3 +32,7 @@ class TrailRepository:
             trilhas['filename'] = urls
 
         return trilhas
+
+    def buscarTrilhasRecentes(self):
+        trilhas = self.collection.select('*').limit(5).execute().data
+        return trilhas
