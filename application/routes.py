@@ -262,6 +262,7 @@ def buscarTrilhasPorUsuario(id):
 @app.route("/trails", methods=['GET'])
 @jwt_required()
 def buscarTrilhas():
+    current_user = get_jwt_identity()
     trilhas = trail.buscarTrilhasRecentes()
 
     if trilhas is None:
