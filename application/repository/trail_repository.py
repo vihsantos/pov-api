@@ -27,12 +27,27 @@ class TrailRepository:
             urls = ''
 
             for arq in arquivos:
-                urls += self.bucket.create_signed_url(arq) + ';'
+                url = self.bucket.create_signed_url(arq, 180000)
+                urls += url["signedURL"] + ";"
 
-            trilhas['filename'] = urls
+            trilha['files'] = urls
 
         return trilhas
 
     def buscarTrilhasRecentes(self):
-        trilhas = self.collection.select('*').limit(5).execute().data
+        trilhas = self.collection.select('id, name, description, occupation, files, user(id, username)').limit(5).execute().data
+
+        for trilha in trilhas:
+
+            arquivos = trilha['files'].split(';')
+            arquivos.pop()
+
+            urls = ''
+
+            for arq in arquivos:
+                url = self.bucket.create_signed_url(arq, 180000)
+                urls += url["signedURL"] + ";"
+
+            trilha['files'] = urls
+
         return trilhas
