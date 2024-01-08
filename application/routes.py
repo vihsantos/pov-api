@@ -7,6 +7,7 @@ from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_requir
 from postgrest import APIError
 
 from application import app
+from application.repository.comment_repository import CommentRepository
 from application.repository.followers_repository import FollowersRepository
 from application.repository.guide_repository import GuideRepository
 from application.repository.localization_repository import LocalizationRepository
@@ -22,6 +23,7 @@ guide = GuideRepository()
 followers = FollowersRepository()
 localizations = LocalizationRepository()
 trail = TrailRepository()
+comment = CommentRepository()
 
 @app.route("/criarusuario", methods=['POST'])
 def criar_usuario():
@@ -269,3 +271,28 @@ def buscarTrilhas():
         return "Nada encontrado", 404
 
     return trilhas
+
+@app.route("/commentByPost/<id>", methods=['GET'])
+@jwt_required()
+def buscarComentariosPorPost(id):
+    current_user = get_jwt_identity()
+
+    comentarios = comment.findCommentsOfPost(id)
+
+    if comentarios is None:
+        return "Nenhum comentário encontrado!", 404
+
+    return comentarios
+
+
+@app.route("/commentByTrail/<id>", methods=['GET'])
+@jwt_required()
+def buscarComentariosPorTrilha(id):
+    current_user = get_jwt_identity()
+
+    comentarios = comment.findCommentsOfTrail(id)
+
+    if comentarios is None:
+        return "Nenhum comentário encontrado!", 404
+
+    return comentarios
