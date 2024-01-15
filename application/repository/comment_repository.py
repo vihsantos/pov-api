@@ -13,7 +13,7 @@ class CommentRepository:
         self.collection = supabase.table('comment')
 
     def createComment(self, comment):
-        self.collection.insert(comment).execute();
+        self.collection.insert(comment).execute()
 
     def findCommentsOfPost(self, post_id):
         comments = self.collection.select('*').eq('post_id', post_id).execute().data
