@@ -25,6 +25,7 @@ localizations = LocalizationRepository()
 trail = TrailRepository()
 comment = CommentRepository()
 
+
 @app.route("/criarusuario", methods=['POST'])
 def criar_usuario():
     try:
@@ -160,13 +161,14 @@ def getPostByID(id):
 
     return data[0], 200
 
+
 @app.route("/ranking/local", methods=['GET'])
 @jwt_required()
 def getRankingByLocal():
-
     dados = post.getTopPostsByLocal()
 
     return dados, 200
+
 
 @app.route("/profileposts/<id>", methods=['GET'])
 @jwt_required()
@@ -210,7 +212,6 @@ def buscarUsuario(id):
 @app.route("/following", methods=['POST'])
 @jwt_required()
 def following():
-
     follow = request.get_json()
 
     followers.follow(follow)
@@ -251,6 +252,7 @@ def novaTrilha():
 
     return "Salvo com sucesso!", 200
 
+
 @app.route("/trails/<id>", methods=['GET'])
 @jwt_required()
 def buscarTrilhasPorUsuario(id):
@@ -260,6 +262,7 @@ def buscarTrilhasPorUsuario(id):
         return "Nada encontrado", 404
 
     return trilhas
+
 
 @app.route("/trails", methods=['GET'])
 @jwt_required()
@@ -271,6 +274,7 @@ def buscarTrilhas():
         return "Nada encontrado", 404
 
     return trilhas
+
 
 @app.route("/commentByPost/<id>", methods=['GET'])
 @jwt_required()
@@ -296,3 +300,18 @@ def buscarComentariosPorTrilha(id):
         return "Nenhum comentário encontrado!", 404
 
     return comentarios
+
+
+@app.route("/comment", methods=['POST'])
+@jwt_required()
+def enviarComentario():
+    try:
+        current_user = get_jwt_identity()
+
+        comentario = request.get_json()
+
+        comment.createComment(comentario)
+        return "Foi!!", 200
+
+    except APIError as e:
+        return "Ops! Algo de errado aconteceu.", 500
