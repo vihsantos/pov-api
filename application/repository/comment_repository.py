@@ -16,9 +16,9 @@ class CommentRepository:
         self.collection.insert(comment).execute()
 
     def findCommentsOfPost(self, post_id):
-        comments = self.collection.select('*').eq('post_id', post_id).execute().data
+        comments = self.collection.select('id, description, user(id, username)').eq('post_id', post_id).execute().data
         return comments
 
     def findCommentsOfTrail(self, trail_id):
-        comments = self.collection.select('*').eq('trail_id', trail_id).execute().data
+        comments = self.collection.select('id, description, user(id, username)').eq('trail_id', trail_id).execute().data
         return comments
