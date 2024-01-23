@@ -310,7 +310,6 @@ def enviarComentario():
 
         comentario = request.get_json()
         comentario["user_id"] = current_user
-        print(comentario)
         comment.createComment(comentario)
         return "Foi!!", 200
 
