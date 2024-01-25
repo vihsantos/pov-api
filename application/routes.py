@@ -159,6 +159,10 @@ def getPostByID(id):
     if data is None:
         return "Post não encontrado!", 404
 
+    count = comment.findCountCommentsByPost(id)
+
+    data[0]['comentarios'] = count
+
     return data[0], 200
 
 
@@ -203,10 +207,10 @@ def buscarUsuario(id):
     seguidores = followers.getFollowersByID(id)
     seguindo = followers.getFollowingByID(id)
 
-    usuario[0]["followers"] = seguidores
-    usuario[0]["following"] = seguindo
+    usuario["followers"] = seguidores
+    usuario["following"] = seguindo
 
-    return usuario[0], 200
+    return usuario, 200
 
 
 @app.route("/following", methods=['POST'])
