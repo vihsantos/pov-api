@@ -25,7 +25,7 @@ class UserRepository:
         return self.collection.select('*').eq("username", login["username"]).eq("password", login["password"]).execute().data
 
     def findById(self, id):
-        return self.collection.select('username, guide').eq("id", id).execute().data
+        return self.collection.select('username, guide').eq("id", id).execute().data[0]
 
     def findByUsername(self, username):
         dado = self.collection.select('username').eq("username", username).execute().data
