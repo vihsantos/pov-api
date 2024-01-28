@@ -240,7 +240,9 @@ def novaTrilha():
 
     arquivos = request.files
 
-    trilhaInformacoes = json.loads(request.values['dados'])
+    dados = request.values['dados']
+
+    trilhaInformacoes = json.loads(dados)
 
     for file in arquivos:
         nomes = file.split('.')
@@ -251,6 +253,7 @@ def novaTrilha():
     trilhaInformacoes['files'] = filenames
     trilhaInformacoes['user'] = current_user
     trilhaInformacoes["data_criacao"] = datetime.now().__str__()
+    trilhaInformacoes.pop('id')
 
     trail.createTrail(trilhaInformacoes)
 
