@@ -18,3 +18,13 @@ class PersonRepository:
 
     def createUserPerson(self, userperson):
         return self.collection_userperson.insert(userperson).execute().data
+
+    def findUserPersonByUser(self, user):
+        return self.collection_userperson.select("*").eq("user_id", user).execute().data
+
+    def addUserIcon(self, file, filename, tipo, user):
+        self.bucket.upload(filename, file, {"content-type": "image/" + tipo})
+
+        user_person = self.findUserPersonByUser(user)[0]
+
+        self.collection.update({'filename': filename}).eq('id', user_person["person_id"])
