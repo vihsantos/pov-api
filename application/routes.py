@@ -213,20 +213,31 @@ def buscarUsuario(id):
     return usuario, 200
 
 
-@app.route("/following", methods=['POST'])
+@app.route("/following/<id>", methods=['POST'])
 @jwt_required()
-def following():
-    follow = request.get_json()
+def following(id):
+    current_user = get_jwt_identity()
+    follow = {
+        "user_seguidor": current_user,
+        "user_seguindo": id
+    }
 
     followers.follow(follow)
 
     return "Salvo com sucesso!", 200
 
 
-@app.route("/unfollow", methods=['DELETE'])
+@app.route("/unfollow/<id>", methods=['DELETE'])
 @jwt_required()
-def unfollow():
+def unfollow(id):
     current_user = get_jwt_identity()
+
+    unfollow = {
+        "user_seguidor": current_user,
+        "user_seguindo": id
+    }
+
+    followers.unfollow(unfollow)
 
     return "Salvo com sucesso!", 200
 
@@ -319,6 +330,23 @@ def enviarComentario():
         comentario["user_id"] = current_user
         comment.createComment(comentario)
         return "Foi!!", 200
+
+    except APIError as e:
+        return "Ops! Algo de errado aconteceu.", 500
+
+@app.route("/addicon", methods=['POST'])
+@jwt_required()
+def adicionarIcon():
+    try:
+        current_user = get_jwt_identity()
+
+        file = request.files['arquivo'].read()
+        name = request.files['arquivo'].filename.split('.')
+        filename = str(uuid.uuid4()) + '.' + name[1]
+
+        person.addUserIcon(file, filename, name[1], current_user)
+
+        return "Enviado", 200
 
     except APIError as e:
         return "Ops! Algo de errado aconteceu.", 500
