@@ -15,6 +15,7 @@ from application.repository.person_repository import PersonRepository
 from application.repository.post_repository import PostRepository
 from application.repository.trail_repository import TrailRepository
 from application.repository.user_repository import UserRepository
+from application.repository.voos_repository import VoosRepository
 
 user = UserRepository()
 post = PostRepository()
@@ -24,7 +25,7 @@ followers = FollowersRepository()
 localizations = LocalizationRepository()
 trail = TrailRepository()
 comment = CommentRepository()
-
+voos = VoosRepository()
 
 @app.route("/criarusuario", methods=['POST'])
 def criar_usuario():
@@ -347,6 +348,39 @@ def adicionarIcon():
         person.addUserIcon(file, filename, name[1], current_user)
 
         return "Enviado", 200
+
+    except APIError as e:
+        return "Ops! Algo de errado aconteceu.", 500
+
+@app.route("/isfollower/<id>", methods=['GET'])
+@jwt_required()
+def isFollower(id):
+    try:
+        current_user = get_jwt_identity()
+
+        seguidor = {
+            "user_seguidor": current_user,
+            "user_seguindo": id
+        }
+
+        isFollower = followers.isFollower(seguidor)
+
+        return isFollower, 200
+    except APIError as e:
+        return "Ops! Algo de errado aconteceu.", 500
+
+@app.route("/addvooinpost/<id_post>", methods=['GET'])
+@jwt_required()
+def addVooInPost(id_post):
+    try:
+        current_user = get_jwt_identity()
+        voo = {
+            "user_id": current_user,
+            "post_id": id_post
+        }
+
+        voos.createVoos(voo)
+        return "Foi!!", 200
 
     except APIError as e:
         return "Ops! Algo de errado aconteceu.", 500
