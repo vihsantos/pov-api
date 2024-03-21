@@ -288,7 +288,7 @@ def buscarTrilhasPorUsuario(id):
 def buscarTrilhas():
     current_user = get_jwt_identity()
     trilhas = trail.buscarTrilhasRecentes()
-
+    
     if trilhas is None:
         return "Nada encontrado", 404
 
@@ -365,7 +365,7 @@ def isFollower(id):
 
         isFollower = followers.isFollower(seguidor)
 
-        return isFollower, 200
+        return json.dumps(isFollower), 200
     except APIError as e:
         return "Ops! Algo de errado aconteceu.", 500
 
