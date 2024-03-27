@@ -20,8 +20,8 @@ class GuideRepository:
     def getGuides(self):
         return self.collection.select('*').execute()
 
-    def findRegister(self, certificado):
-        registro = list(filter(lambda item: item['Número do Certificado'] == certificado, self.guideData))
+    def findRegister(self, certificado, validade):
+        registro = list(filter(lambda item: item['Número do Certificado'] == certificado & item['Validade do Certificado'] == validade, self.guideData))
         return registro
 
     def getGuides(self):

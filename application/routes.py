@@ -47,7 +47,7 @@ def criar_usuario():
                 "data_vencimento": modelo["data_vencimento"]
             }
 
-            registro = guide.findRegister(guia['cod_cadastur'])
+            registro = guide.findRegister(guia['cod_cadastur'], guia['data_vencimento'])
 
             if registro is None:
                 return 'Registro não encontrado', 404
