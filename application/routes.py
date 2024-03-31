@@ -365,7 +365,8 @@ def isFollower(id):
 
         isFollower = followers.isFollower(seguidor)
 
-        return json.dumps(isFollower), 200
+        return json.dumps(
+            isFollower), 200
     except APIError as e:
         return "Ops! Algo de errado aconteceu.", 500
 
