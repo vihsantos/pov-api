@@ -11,5 +11,8 @@ class VoosRepository:
     def __init__(self):
         self.collection = supabase.table('voos')
 
-    def createVoos(self, voos):
-        self.collection.insert(voos).execute()
+    def createVoo(self, voo):
+        self.collection.insert(voo).execute()
+
+    def removeVoo(self, voo):
+        self.collection.delete().eq("id", voo['id']).execute()

@@ -336,9 +336,9 @@ def enviarComentario():
     except APIError as e:
         return "Ops! Algo de errado aconteceu.", 500
 
-@app.route("/addicon", methods=['POST'])
+@app.route("/addProfileIcon", methods=['POST'])
 @jwt_required()
-def adicionarIcon():
+def adicionarProfileIcon():
     try:
         current_user = get_jwt_identity()
 
@@ -381,7 +381,7 @@ def addVooInPost(id_post):
             "post_id": id_post
         }
 
-        voos.createVoos(voo)
+        voos.createVoo(voo)
         return "Foi!!", 200
 
     except APIError as e:

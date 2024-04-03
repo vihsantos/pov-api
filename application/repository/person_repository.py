@@ -27,4 +27,4 @@ class PersonRepository:
 
         user_person = self.findUserPersonByUser(user)[0]
 
-        self.collection.update({'filename': filename}).eq('id', user_person["person_id"])
+        self.collection.update({'filename': filename}).eq('id', user_person["person_id"]).execute()
