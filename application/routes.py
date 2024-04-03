@@ -41,6 +41,7 @@ def criar_usuario():
             return "Nenhum dado foi enviado", 400
 
         if modelo['guide'] is True:
+
             guia = {
                 "cod_cadastur": modelo["cadastur"],
                 "areaatuacao": modelo["areatuacao"],

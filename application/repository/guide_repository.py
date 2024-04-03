@@ -1,5 +1,7 @@
 import csv
+import datetime
 import json
+
 from supabase import create_client
 
 with open("application/config.json", "r") as f:
@@ -21,7 +23,9 @@ class GuideRepository:
         return self.collection.select('*').execute()
 
     def findRegister(self, certificado, validade):
-        registro = list(filter(lambda item: item['Número do Certificado'] == certificado & item['Validade do Certificado'] == validade, self.guideData))
+
+        registro = list(filter(lambda item: item['Número do Certificado'] == certificado and datetime.datetime.strptime(item['Validade do Certificado'], '%d/%m/%Y') == validade , self.guideData))
+
         return registro
 
     def getGuides(self):
