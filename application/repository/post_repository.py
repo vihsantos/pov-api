@@ -69,3 +69,12 @@ class PostRepository:
         posts = self.collection.select('id, filename, description, stars, localization(lat, long, local), user(id, '
                                        'username), voos(*)').execute().data
         print(posts)
+
+    def removePost(self, post_id):
+        filename = self.collection.select('filename').eq("id", post_id).execute().data[0]["filename"]
+
+        filename = filename[:-1]
+
+        self.bucket.remove(filename)
+
+        self.collection.delete().eq("id", 1).execute()

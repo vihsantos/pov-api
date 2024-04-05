@@ -54,3 +54,14 @@ class TrailRepository:
             trilha['files'] = urls
 
         return trilhas
+
+    def removeTrail(self, trail_id):
+
+        filenames = self.collection.select('filename').eq("id", trail_id).execute().data[0]["filename"]
+        files = filenames.split(';')
+
+        for file in files:
+            if file != "" or file is not None:
+                self.bucket.remove(file)
+
+        self.collection.delete().eq("id", trail_id).execute()

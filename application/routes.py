@@ -288,8 +288,8 @@ def buscarTrilhasPorUsuario(id):
 @jwt_required()
 def buscarTrilhas():
     current_user = get_jwt_identity()
-    trilhas = trail.buscarTrilhasRecentes()
-    
+    trilhas = trail.buscarTrilhasRecentes
+
     if trilhas is None:
         return "Nada encontrado", 404
 
