@@ -22,6 +22,18 @@ class PersonRepository:
     def findUserPersonByUser(self, user):
         return self.collection_userperson.select("*").eq("user_id", user).execute().data
 
+    def findUrlProfileIcon(self, user):
+        user_person = self.findUserPersonByUser(user)[0]
+
+        filename = self.collection.select('filename').eq('id', user_person["person_id"]).execute().data[0]
+
+        if filename["filename"] is None or "":
+            return None
+
+        url = self.bucket.create_signed_url(filename["filename"], 180000)
+
+        return url["signedURL"]
+
     def addUserIcon(self, file, filename, tipo, user):
         self.bucket.upload(filename, file, {"content-type": "image/" + tipo})
 

@@ -211,7 +211,7 @@ def buscarUsuario(id):
 
     usuario["followers"] = seguidores
     usuario["following"] = seguindo
-
+    usuario["profileIcon"] = person.findUrlProfileIcon(id)
     return usuario, 200
 
 
@@ -288,7 +288,7 @@ def buscarTrilhasPorUsuario(id):
 @jwt_required()
 def buscarTrilhas():
     current_user = get_jwt_identity()
-    trilhas = trail.buscarTrilhasRecentes
+    trilhas = trail.buscarTrilhasRecentes()
 
     if trilhas is None:
         return "Nada encontrado", 404
