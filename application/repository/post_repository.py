@@ -30,9 +30,6 @@ class PostRepository:
     def salvarPostImage(self, file, filename, tipo):
         self.bucket.upload(filename, file, {"content-type": "image/" + tipo})
 
-    def buscarImagemPost(self, image_url):
-        return self.bucket.download(image_url)
-
     def listarTopPostsHome(self):
         posts = self.collection.select(
             'id, filename, description, stars, localization(lat, long, local), '
@@ -62,8 +59,11 @@ class PostRepository:
 
     def getTopPostsByLocal(self):
         posts = supabase.rpc('ranking_by_local', params={}).execute().data
-
         return posts
+
+    def getDataRankingByLocal(self, local):
+        rankings = supabase.rpc('search_ranking_by_local', params={"nome": local}).execute().data
+        return rankings
 
     def getPosts(self):
         posts = self.collection.select('id, filename, description, stars, localization(lat, long, local), user(id, '
@@ -73,8 +73,6 @@ class PostRepository:
     def removePost(self, post_id):
         filename = self.collection.select('filename').eq("id", post_id).execute().data[0]["filename"]
 
-        filename = filename[:-1]
-
         self.bucket.remove(filename)
 
-        self.collection.delete().eq("id", 1).execute()
+        self.collection.delete().eq("id", post_id).execute()
