@@ -366,6 +366,8 @@ def isFollower(id):
 
         isFollower = followers.isFollower(seguidor)
 
+        print(isFollower)
+
         return json.dumps(
             isFollower), 200
     except APIError as e:

@@ -27,7 +27,7 @@ class FollowersRepository:
     def isFollower(self, seguidor):
         dado = self.collection.select('*').eq("user_seguidor", seguidor["user_seguidor"]).eq("user_seguindo", seguidor["user_seguindo"]).execute().data
 
-        if dado is not None:
+        if dado.__len__() != 0:
             return True
 
         return False
