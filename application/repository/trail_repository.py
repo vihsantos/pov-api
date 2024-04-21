@@ -65,3 +65,20 @@ class TrailRepository:
                 self.bucket.remove(file)
 
         self.collection.delete().eq("id", trail_id).execute()
+
+    def findTrailById(self, id):
+
+        trilha = self.collection.select('id, name, description, occupation, files, user(id, username)').eq("id", id).execute().data[0]
+
+        arquivos = trilha['files'].split(';')
+        arquivos.pop()
+
+        urls = ''
+
+        for arq in arquivos:
+            url = self.bucket.create_signed_url(arq, 180000)
+            urls += url["signedURL"] + ";"
+
+        trilha['files'] = urls
+
+        return trilha

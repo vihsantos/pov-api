@@ -296,6 +296,15 @@ def buscarTrilhas():
     return trilhas
 
 
+@app.route("/trail/<id>", methods=["GET"])
+@jwt_required()
+def buscarTrilhaPorId(id):
+    current_user = get_jwt_identity()
+
+    trilha = trail.findTrailById(id)
+
+    return trilha
+
 @app.route("/commentByPost/<id>", methods=['GET'])
 @jwt_required()
 def buscarComentariosPorPost(id):
