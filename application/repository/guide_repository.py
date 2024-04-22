@@ -23,7 +23,6 @@ class GuideRepository:
         return self.collection.select('*').execute()
 
     def findRegister(self, certificado, validade):
-
         registro = list(filter(lambda item: item['Número do Certificado'] == certificado and datetime.datetime.strptime(item['Validade do Certificado'], '%d/%m/%Y') == validade , self.guideData))
 
         return registro
@@ -36,8 +35,6 @@ class GuideRepository:
             guia.pop('person')
 
             guia['user']['profileicon'] = filename if "" else ""
-
-
 
         return guias
 
@@ -57,3 +54,10 @@ class GuideRepository:
 
     def createUserGuide(self, guidePerson):
         return self.collection_userguide.insert(guidePerson).execute().data
+
+    def getInfosGuide(self, user):
+        guide_id = self.collection_userguide.select('guide_id').eq("user_id", user).execute().data[0]
+
+        guide = self.collection.select('cod_cadastur, data_vencimento, areaatuacao').eq("id", guide_id).execute().data[0]
+
+        return guide

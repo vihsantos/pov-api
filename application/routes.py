@@ -416,3 +416,16 @@ def removePostById(id):
 
     except APIError as e:
         return "Ops! Algo de errado aconteceu.", 500
+
+@app.route("/infoguide/<id>", methods=['GET'])
+@jwt_required()
+def getInfoGuide(id):
+    try:
+        info = guide.getInfosGuide(id)
+
+        if info is not None:
+            return info
+
+        return "Nada encontrado", 404
+    except APIError as e:
+        return "Ops! Algo de errado aconteceu.", 500
