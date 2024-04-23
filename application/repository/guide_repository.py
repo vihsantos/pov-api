@@ -58,6 +58,6 @@ class GuideRepository:
     def getInfosGuide(self, user):
         guide_id = self.collection_userguide.select('guide_id').eq("user_id", user).execute().data[0]
 
-        guide = self.collection.select('cod_cadastur, data_vencimento, areaatuacao').eq("id", guide_id).execute().data[0]
+        guide = self.collection.select('cod_cadastur, data_vencimento, areaatuacao').eq("id", guide_id["guide_id"]).execute().data[0]
 
         return guide
