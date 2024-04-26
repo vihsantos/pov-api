@@ -76,3 +76,10 @@ class PostRepository:
         self.bucket.remove(filename)
 
         self.collection.delete().eq("id", post_id).execute()
+
+
+    def metodoTeste(self):
+
+        dado = self.collection.select('...user(...user_person(...person(filename)))').execute().data
+
+        print(dado)

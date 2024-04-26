@@ -429,3 +429,8 @@ def getInfoGuide(id):
         return "Nada encontrado", 404
     except APIError as e:
         return "Ops! Algo de errado aconteceu.", 500
+
+@app.route("/testee")
+def teste():
+    post.metodoTeste()
+    return "Oi", 200
