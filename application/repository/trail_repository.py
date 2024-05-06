@@ -11,7 +11,7 @@ supabase = create_client(appsettings["SUPABASE_URL"], appsettings["SUPABASE_KEY"
 class TrailRepository:
     def __init__(self):
         self.collection = supabase.table('trails')
-        self.bucket = supabase.storage.from_('pov/trail')
+        self.bucket = supabase.storage.from_('trails')
 
     def createTrail(self, trail):
         self.collection.upsert(trail).execute()

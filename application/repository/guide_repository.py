@@ -28,10 +28,10 @@ class GuideRepository:
         return registro
 
     def getGuides(self):
-        guias = self.collection_userguide.select('guide(areaatuacao, cod_cadastur), user(id, username), person(filename)').execute().data
+        guias = self.collection_userguide.select('guide(areaatuacao, cod_cadastur), user(id, username), person(profile)').execute().data
         for guia in guias:
 
-            filename = guia['person']['filename']
+            filename = guia['person']['profile']
             guia.pop('person')
 
             guia['user']['profileicon'] = filename if "" else ""

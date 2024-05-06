@@ -11,7 +11,7 @@ class PersonRepository:
     def __init__(self):
         self.collection = supabase.table('person')
         self.collection_userperson = supabase.table('user_person')
-        self.bucket = supabase.storage.from_('pov/person')
+        self.bucket = supabase.storage.from_('profile')
 
     def createPerson(self, person):
         return self.collection.insert(person).execute().data
@@ -25,12 +25,12 @@ class PersonRepository:
     def findUrlProfileIcon(self, user):
         user_person = self.findUserPersonByUser(user)[0]
 
-        filename = self.collection.select('filename').eq('id', user_person["person_id"]).execute().data[0]
+        filename = self.collection.select('profile').eq('id', user_person["person_id"]).execute().data[0]
 
-        if filename["filename"] is None or "":
+        if filename["profile"] is None or "":
             return None
 
-        url = self.bucket.create_signed_url(filename["filename"], 180000)
+        url = self.bucket.create_signed_url(filename["profile"], 180000)
 
         return url["signedURL"]
 
@@ -39,4 +39,12 @@ class PersonRepository:
 
         user_person = self.findUserPersonByUser(user)[0]
 
-        self.collection.update({'filename': filename}).eq('id', user_person["person_id"]).execute()
+        self.collection.update({'profile': filename}).eq('id', user_person["person_id"]).execute()
+
+    def getUrlIcon(self, filename):
+
+        if filename is not None:
+            icon = self.bucket.create_signed_url(filename, 180000)
+            return icon["signedURL"]
+
+        return None

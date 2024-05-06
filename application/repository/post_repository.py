@@ -1,18 +1,20 @@
 import json
-
 from supabase import create_client
+from application.repository.person_repository import PersonRepository
 
 with open("application/config.json", "r") as f:
     appsettings = json.load(f)
 
 supabase = create_client(appsettings["SUPABASE_URL"], appsettings["SUPABASE_KEY"])
 
+person = PersonRepository()
+
 
 class PostRepository:
 
     def __init__(self):
         self.collection = supabase.table('post')
-        self.bucket = supabase.storage.from_('pov/posts')
+        self.bucket = supabase.storage.from_('posts')
 
     def createPost(self, post):
         self.collection.insert(post).execute()
@@ -33,12 +35,14 @@ class PostRepository:
     def listarTopPostsHome(self):
         posts = self.collection.select(
             'id, filename, description, stars, localization(lat, long, local), '
-            'user(id, username)').eq("stars", 5).limit(10).order("data_criacao", desc=True).execute().data
+            'user(id, username, ...user_person(...person(profile)))').eq("stars", 5).limit(10).order("data_criacao", desc=True).execute().data
 
         for post in posts:
             url = self.bucket.create_signed_url(post['filename'], 180000)
             post['image_url'] = url["signedURL"]
             post.pop('filename')
+            profile = post['user']['profile']
+            post['user']['profile'] = person.getUrlIcon(profile)
 
         return posts
 
@@ -71,15 +75,21 @@ class PostRepository:
         print(posts)
 
     def removePost(self, post_id):
-        filename = self.collection.select('filename').eq("id", post_id).execute().data[0]["filename"]
 
-        self.bucket.remove(filename)
+        arquivo = self.collection.select('filename').eq("id", post_id).execute().data[0]["filename"]
+
+        print(arquivo)
+
+        self.bucket.remove([arquivo])
 
         self.collection.delete().eq("id", post_id).execute()
 
 
     def metodoTeste(self):
 
-        dado = self.collection.select('...user(...user_person(...person(filename)))').execute().data
+        posts = self.collection.select(
+            'id, filename, description, stars, localization(lat, long, local), '
+            'user(id, username,...user_person(...person(profile)))').eq("stars", 5).limit(10).order("data_criacao", desc=True).execute().data
 
-        print(dado)
+        profileicon =posts[0]['user']['profile']
+

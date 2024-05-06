@@ -1,5 +1,4 @@
 import json
-import uuid
 
 from supabase import create_client
 
@@ -8,12 +7,11 @@ with open("application/config.json", "r") as f:
 
 supabase = create_client(appsettings["SUPABASE_URL"], appsettings["SUPABASE_KEY"])
 
-
 class UserRepository:
 
     def __init__(self):
         self.collection = supabase.table('user')
-        self.bucket = supabase.storage.from_('pov/profile')
+        self.bucket = supabase.storage.from_('profile')
 
     def createUser(self, user):
         return self.collection.insert(user).execute().data
@@ -33,8 +31,4 @@ class UserRepository:
             return True
 
         return False
-    def saveProfilePhoto(self, file, filename, tipo, id):
-        self.collection.update({'filename': filename}).eq('id', id).execute()
-
-        self.bucket.upload(filename, file, {"content-type": "image/" + tipo})
 
