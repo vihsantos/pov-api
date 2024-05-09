@@ -2,11 +2,14 @@ import json
 
 from supabase import create_client
 
+from application.repository.person_repository import PersonRepository
+
 with open("application/config.json", "r") as f:
     appsettings = json.load(f)
 
 supabase = create_client(appsettings["SUPABASE_URL"], appsettings["SUPABASE_KEY"])
 
+person = PersonRepository()
 
 class TrailRepository:
     def __init__(self):
@@ -27,6 +30,9 @@ class TrailRepository:
             arquivos = trilha['files'].split(';')
             arquivos.pop()
 
+            profile = trilha['user']['profile']
+            trilha['user']['profile'] = person.getUrlIcon(profile)
+
             urls = ''
 
             for arq in arquivos:
@@ -38,7 +44,7 @@ class TrailRepository:
         return trilhas
 
     def buscarTrilhasRecentes(self):
-        trilhas = self.collection.select('id, name, description, occupation, files, user(id, username)').limit(5).execute().data
+        trilhas = self.collection.select('id, name, description, occupation, files, user(id, username, ...user_person(...person(profile))))').limit(5).execute().data
 
         for trilha in trilhas:
 
