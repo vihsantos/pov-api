@@ -4,11 +4,14 @@ import json
 
 from supabase import create_client
 
+from application.repository.person_repository import PersonRepository
+
 with open("application/config.json", "r") as f:
     appsettings = json.load(f)
 
 supabase = create_client(appsettings["SUPABASE_URL"],appsettings["SUPABASE_KEY"])
 
+person = PersonRepository()
 
 class GuideRepository:
     def __init__(self):
@@ -28,17 +31,14 @@ class GuideRepository:
         return registro
 
     def getGuides(self):
-        guias = self.collection_userguide.select('guide(areaatuacao, cod_cadastur), user(id, username), person(profile)').execute().data
+        guias = self.collection_userguide.select('guide(areaatuacao, cod_cadastur), user(id, username, ...user_person(...person(profile)))').execute().data
         for guia in guias:
-
-            filename = guia['person']['profile']
-            guia.pop('person')
-
-            guia['user']['profileicon'] = filename if "" else ""
+            profile = guia['user']['profile']
+            guia['user']['profile'] = person.getUrlIcon(profile)
 
         return guias
 
-    def csv_to_list(self,path):
+    def csv_to_list(self, path):
         dicts = []
 
         # read csv file
