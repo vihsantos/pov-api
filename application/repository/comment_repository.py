@@ -27,3 +27,7 @@ class CommentRepository:
     def findCountCommentsByPost(self, post_id):
         count = self.collection.select('*').eq('post_id', post_id).execute().data
         return count.__len__()
+
+    def findCountCommentsByTrail(self, trail_id):
+        count = self.collection.select('*').eq('trail_id', trail_id).execute().data
+        return count.__len__()

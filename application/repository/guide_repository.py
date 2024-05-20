@@ -25,8 +25,12 @@ class GuideRepository:
     def getGuides(self):
         return self.collection.select('*').execute()
 
-    def findRegister(self, certificado, validade):
-        registro = list(filter(lambda item: item['Número do Certificado'] == certificado and datetime.datetime.strptime(item['Validade do Certificado'], '%d/%m/%Y') == validade , self.guideData))
+    def findRegister(self, guia):
+        registro = list(
+            filter(lambda item: item['Número do Certificado'] == guia["cod_cadastur"]
+                                and datetime.datetime.strptime(item['Validade do Certificado'], '%d/%m/%Y') == guia["data_vencimento"]
+                   and item['UF'] == guia["estado"] and item['Município'] == guia["municipio"]
+                   , self.guideData))
 
         return registro
 

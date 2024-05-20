@@ -23,7 +23,7 @@ class TrailRepository:
         self.bucket.upload(filename, file, {"content-type": "image/" + tipo})
 
     def buscarTrilhasDoGuia(self, id):
-        trilhas = self.collection.select('id, name, description, occupation, files, user(id, username)').eq('user', id).execute().data
+        trilhas = self.collection.select('id, name, description, occupation, files, user(id, username, ...user_person(...person(profile)))').eq('user', id).execute().data
 
         for trilha in trilhas:
 
@@ -50,6 +50,9 @@ class TrailRepository:
 
             arquivos = trilha['files'].split(';')
             arquivos.pop()
+
+            profile = trilha['user']['profile']
+            trilha['user']['profile'] = person.getUrlIcon(profile)
 
             urls = ''
 

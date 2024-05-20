@@ -45,10 +45,12 @@ def criar_usuario():
             guia = {
                 "cod_cadastur": modelo["cadastur"],
                 "areaatuacao": modelo["areatuacao"],
-                "data_vencimento": modelo["data_vencimento"]
+                "data_vencimento": modelo["data_vencimento"],
+                "estado": modelo["estado"],
+                "municipio": modelo["municipio"]
             }
 
-            registro = guide.findRegister(guia['cod_cadastur'], guia['data_vencimento'])
+            registro = guide.findRegister(guia)
 
             if registro is None:
                 return 'Registro não encontrado', 404
@@ -303,6 +305,10 @@ def buscarTrilhaPorId(id):
 
     trilha = trail.findTrailById(id)
 
+    count = comment.findCountCommentsByTrail(id)
+
+    trilha['comentarios'] = count
+
     return trilha
 
 @app.route("/commentByPost/<id>", methods=['GET'])
@@ -429,8 +435,3 @@ def getInfoGuide(id):
         return "Nada encontrado", 404
     except APIError as e:
         return "Ops! Algo de errado aconteceu.", 500
-
-@app.route("/testee")
-def teste():
-    post.metodoTeste()
-    return "Oi", 200
