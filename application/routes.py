@@ -388,7 +388,7 @@ def isFollower(id):
     except APIError as e:
         return "Ops! Algo de errado aconteceu.", 500
 
-@app.route("/addvooinpost/<id_post>", methods=['GET'])
+@app.route("/addvooinpost/<id_post>", methods=['POST'])
 @jwt_required()
 def addVooInPost(id_post):
     try:
@@ -435,3 +435,18 @@ def getInfoGuide(id):
         return "Nada encontrado", 404
     except APIError as e:
         return "Ops! Algo de errado aconteceu.", 500
+
+@app.route("/searchguide/<estado>/<municipio>", methods=['GET'])
+@jwt_required()
+def searchGuides(estado, municipio):
+
+    if estado and municipio != " ":
+        dados = guide.searchGuides(estado, municipio)
+    else:
+        if estado != " ":
+            dados = guide.searchGuidesByEstado(estado)
+        else:
+            dados = guide.searchGuidesByMunicipio(municipio)
+
+
+    return "ok", 200

@@ -42,6 +42,43 @@ class GuideRepository:
 
         return guias
 
+    def searchGuidesByEstadoAndMunicipio(self, estado, municipio):
+        guias = (self.collection_userguide.select('guide(areaatuacao, cod_cadastur, estado, municipio), '
+                                                 'user(id, username, ...user_person(...person(profile)))')
+                 .eq('guide.estado', estado)
+                 .eq('guide.municipio', municipio)
+                 .execute().data)
+
+        for guia in guias:
+            profile = guia['user']['profile']
+            guia['user']['profile'] = person.getUrlIcon(profile)
+
+        return guias
+
+    def searchGuidesByEstado(self, estado):
+        guias = (self.collection_userguide.select('guide(areaatuacao, cod_cadastur, estado, municipio), '
+                                                 'user(id, username, ...user_person(...person(profile)))')
+                 .eq('guide.estado', estado)
+                 .execute().data)
+
+        for guia in guias:
+            profile = guia['user']['profile']
+            guia['user']['profile'] = person.getUrlIcon(profile)
+
+        return guias
+
+    def searchGuidesByMunicipio(self, municipio):
+        guias = (self.collection_userguide.select('guide(areaatuacao, cod_cadastur, estado, municipio), '
+                                                 'user(id, username, ...user_person(...person(profile)))')
+                 .eq('guide.municipio', municipio)
+                 .execute().data)
+
+        for guia in guias:
+            profile = guia['user']['profile']
+            guia['user']['profile'] = person.getUrlIcon(profile)
+
+        return guias
+
     def csv_to_list(self, path):
         dicts = []
 
