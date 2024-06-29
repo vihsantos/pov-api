@@ -66,7 +66,7 @@ class TrailRepository:
 
     def removeTrail(self, trail_id):
 
-        filenames = self.collection.select('filename').eq("id", trail_id).execute().data[0]["filename"]
+        filenames = self.collection.select('files').eq("id", trail_id).execute().data[0]["files"]
         files = filenames.split(';')
 
         for file in files:

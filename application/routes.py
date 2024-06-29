@@ -415,9 +415,20 @@ def getDataRankingByLocal(local):
     return data, 200
 
 @app.route("/removepost/<id>", methods=['DELETE'])
+@jwt_required()
 def removePostById(id):
     try:
         post.removePost(id)
+        return "Pronto", 200
+
+    except APIError as e:
+        return "Ops! Algo de errado aconteceu.", 500
+
+@app.route("/removetrail/<id>", methods=['DELETE'])
+@jwt_required()
+def removeTrailById(id):
+    try:
+        trail.removeTrail(id)
         return "Pronto", 200
 
     except APIError as e:
