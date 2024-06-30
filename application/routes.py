@@ -17,6 +17,8 @@ from application.repository.trail_repository import TrailRepository
 from application.repository.user_repository import UserRepository
 from application.repository.voos_repository import VoosRepository
 
+#<editor-fold desc="Inicialização dos Repositorys">
+
 user = UserRepository()
 post = PostRepository()
 person = PersonRepository()
@@ -27,6 +29,28 @@ trail = TrailRepository()
 comment = CommentRepository()
 voos = VoosRepository()
 
+#</editor-fold>
+
+#<editor-fold desc="Acesso">
+@app.route("/acesso", methods=['POST'])
+def acessar():
+    login = request.get_json()
+
+    usuario = user.findByLogin(login)
+
+    if usuario is None or usuario.__len__() == 0:
+        return "Não foi possivel realizar o acesso", 401
+
+    result = {
+        "token": create_access_token(usuario[0]["id"]),
+        "userid": usuario[0]['id'],
+        "guide": usuario[0]['guide']
+    }
+
+    return jsonify(result), 200
+#</editor-fold>
+
+#<editor-fold desc="Usuário">
 @app.route("/criarusuario", methods=['POST'])
 def criar_usuario():
     try:
@@ -98,25 +122,42 @@ def criar_usuario():
 
         return "Ops! Ocorreu um erro!", 500
 
+@app.route("/addProfileIcon", methods=['POST'])
+@jwt_required()
+def adicionarProfileIcon():
+    try:
+        current_user = get_jwt_identity()
 
-@app.route("/acesso", methods=['POST'])
-def acessar():
-    login = request.get_json()
+        file = request.files['arquivo'].read()
+        name = request.files['arquivo'].filename.split('.')
+        filename = str(uuid.uuid4()) + '.' + name[1]
 
-    usuario = user.findByLogin(login)
+        person.addUserIcon(file, filename, name[1], current_user)
 
-    if usuario is None or usuario.__len__() == 0:
-        return "Não foi possivel realizar o acesso", 401
+        return "Enviado", 200
 
-    result = {
-        "token": create_access_token(usuario[0]["id"]),
-        "userid": usuario[0]['id'],
-        "guide": usuario[0]['guide']
-    }
+    except APIError as e:
+        return "Ops! Algo de errado aconteceu.", 500
 
-    return jsonify(result), 200
+@app.route("/usuario/<id>", methods=['GET'])
+@jwt_required()
+def buscarUsuario(id):
+    usuario = user.findById(id)
 
+    if usuario is None:
+        return "Usuário não encontrado", 404
 
+    seguidores = followers.getFollowersByID(id)
+    seguindo = followers.getFollowingByID(id)
+
+    usuario["followers"] = seguidores
+    usuario["following"] = seguindo
+    usuario["profileIcon"] = person.findUrlProfileIcon(id)
+    return usuario, 200
+
+#</editor-fold>
+
+#<editor-fold desc="Posts">
 @app.route("/newpost", methods=['POST'])
 @jwt_required()
 def criarNovoPost():
@@ -169,15 +210,6 @@ def getPostByID(id):
 
     return data[0], 200
 
-
-@app.route("/ranking/local", methods=['GET'])
-@jwt_required()
-def getRankingByLocal():
-    dados = post.getTopPostsByLocal()
-
-    return dados, 200
-
-
 @app.route("/profileposts/<id>", methods=['GET'])
 @jwt_required()
 def findPostProfile(id):
@@ -188,6 +220,53 @@ def findPostProfile(id):
 
     return jsonify(data), 200
 
+@app.route("/removepost/<id>", methods=['DELETE'])
+@jwt_required()
+def removePostById(id):
+    try:
+        post.removePost(id)
+        return "Pronto", 200
+
+    except APIError as e:
+        return "Ops! Algo de errado aconteceu.", 500
+
+@app.route("/addvooinpost/<id_post>", methods=['POST'])
+@jwt_required()
+def addVooInPost(id_post):
+    try:
+        current_user = get_jwt_identity()
+        voo = {
+            "user_id": current_user,
+            "post_id": id_post
+        }
+
+        voos.createVoo(voo)
+        return "Foi!!", 200
+
+    except APIError as e:
+        return "Ops! Algo de errado aconteceu.", 500
+#</editor-fold>
+
+#<editor-fold desc="Ranking">
+@app.route("/ranking/local", methods=['GET'])
+@jwt_required()
+def getRankingByLocal():
+    dados = post.getTopPostsByLocal()
+
+    return dados, 200
+
+@app.route("/ranking/<local>", methods=['GET'])
+@jwt_required()
+def getDataRankingByLocal(local):
+    current_user = get_jwt_identity()
+
+    data = post.getDataRankingByLocal(local)
+
+    return data, 200
+
+#</editor-fold>
+
+#<editor-fold desc="Guides">
 
 @app.route("/guides", methods=['GET'])
 @jwt_required()
@@ -199,53 +278,37 @@ def getGuides():
 
     return guias, 200
 
-
-@app.route("/usuario/<id>", methods=['GET'])
+@app.route("/infoguide/<id>", methods=['GET'])
 @jwt_required()
-def buscarUsuario(id):
-    usuario = user.findById(id)
+def getInfoGuide(id):
+    try:
+        info = guide.getInfosGuide(id)
 
-    if usuario is None:
-        return "Usuário não encontrado", 404
+        if info is not None:
+            return info
 
-    seguidores = followers.getFollowersByID(id)
-    seguindo = followers.getFollowingByID(id)
+        return "Nada encontrado", 404
+    except APIError as e:
+        return "Ops! Algo de errado aconteceu.", 500
 
-    usuario["followers"] = seguidores
-    usuario["following"] = seguindo
-    usuario["profileIcon"] = person.findUrlProfileIcon(id)
-    return usuario, 200
-
-
-@app.route("/following/<id>", methods=['POST'])
+@app.route("/searchguide/<estado>/<municipio>", methods=['GET'])
 @jwt_required()
-def following(id):
-    current_user = get_jwt_identity()
-    follow = {
-        "user_seguidor": current_user,
-        "user_seguindo": id
-    }
+def searchGuides(estado, municipio):
 
-    followers.follow(follow)
-
-    return "Salvo com sucesso!", 200
-
-
-@app.route("/unfollow/<id>", methods=['DELETE'])
-@jwt_required()
-def unfollow(id):
-    current_user = get_jwt_identity()
-
-    unfollow = {
-        "user_seguidor": current_user,
-        "user_seguindo": id
-    }
-
-    followers.unfollow(unfollow)
-
-    return "Salvo com sucesso!", 200
+    if estado and municipio != " ":
+        dados = guide.searchGuidesByEstadoAndMunicipio(estado, municipio)
+    else:
+        if estado != " ":
+            dados = guide.searchGuidesByEstado(estado)
+        else:
+            dados = guide.searchGuidesByMunicipio(municipio)
 
 
+    return "ok", 200
+
+#</editor-fold>
+
+#<editor-fold desc="Trails">
 @app.route("/newtrail", methods=['POST'])
 @jwt_required()
 def novaTrilha():
@@ -311,6 +374,20 @@ def buscarTrilhaPorId(id):
 
     return trilha
 
+@app.route("/removetrail/<id>", methods=['DELETE'])
+@jwt_required()
+def removeTrailById(id):
+    try:
+        trail.removeTrail(id)
+        return "Pronto", 200
+
+    except APIError as e:
+        return "Ops! Algo de errado aconteceu.", 500
+
+
+#</editor-fold>
+
+#<editor-fold desc="Comments">
 @app.route("/commentByPost/<id>", methods=['GET'])
 @jwt_required()
 def buscarComentariosPorPost(id):
@@ -351,22 +428,38 @@ def enviarComentario():
     except APIError as e:
         return "Ops! Algo de errado aconteceu.", 500
 
-@app.route("/addProfileIcon", methods=['POST'])
+
+#</editor-fold>
+
+#<editor-fold desc="Follow">
+
+@app.route("/following/<id>", methods=['POST'])
 @jwt_required()
-def adicionarProfileIcon():
-    try:
-        current_user = get_jwt_identity()
+def following(id):
+    current_user = get_jwt_identity()
+    follow = {
+        "user_seguidor": current_user,
+        "user_seguindo": id
+    }
 
-        file = request.files['arquivo'].read()
-        name = request.files['arquivo'].filename.split('.')
-        filename = str(uuid.uuid4()) + '.' + name[1]
+    followers.follow(follow)
 
-        person.addUserIcon(file, filename, name[1], current_user)
+    return "Salvo com sucesso!", 200
 
-        return "Enviado", 200
 
-    except APIError as e:
-        return "Ops! Algo de errado aconteceu.", 500
+@app.route("/unfollow/<id>", methods=['DELETE'])
+@jwt_required()
+def unfollow(id):
+    current_user = get_jwt_identity()
+
+    unfollow = {
+        "user_seguidor": current_user,
+        "user_seguindo": id
+    }
+
+    followers.unfollow(unfollow)
+
+    return "Salvo com sucesso!", 200
 
 @app.route("/isfollower/<id>", methods=['GET'])
 @jwt_required()
@@ -388,76 +481,4 @@ def isFollower(id):
     except APIError as e:
         return "Ops! Algo de errado aconteceu.", 500
 
-@app.route("/addvooinpost/<id_post>", methods=['POST'])
-@jwt_required()
-def addVooInPost(id_post):
-    try:
-        current_user = get_jwt_identity()
-        voo = {
-            "user_id": current_user,
-            "post_id": id_post
-        }
-
-        voos.createVoo(voo)
-        return "Foi!!", 200
-
-    except APIError as e:
-        return "Ops! Algo de errado aconteceu.", 500
-
-@app.route("/ranking/<local>", methods=['GET'])
-@jwt_required()
-
-def getDataRankingByLocal(local):
-    current_user = get_jwt_identity()
-
-    data = post.getDataRankingByLocal(local)
-
-    return data, 200
-
-@app.route("/removepost/<id>", methods=['DELETE'])
-@jwt_required()
-def removePostById(id):
-    try:
-        post.removePost(id)
-        return "Pronto", 200
-
-    except APIError as e:
-        return "Ops! Algo de errado aconteceu.", 500
-
-@app.route("/removetrail/<id>", methods=['DELETE'])
-@jwt_required()
-def removeTrailById(id):
-    try:
-        trail.removeTrail(id)
-        return "Pronto", 200
-
-    except APIError as e:
-        return "Ops! Algo de errado aconteceu.", 500
-
-@app.route("/infoguide/<id>", methods=['GET'])
-@jwt_required()
-def getInfoGuide(id):
-    try:
-        info = guide.getInfosGuide(id)
-
-        if info is not None:
-            return info
-
-        return "Nada encontrado", 404
-    except APIError as e:
-        return "Ops! Algo de errado aconteceu.", 500
-
-@app.route("/searchguide/<estado>/<municipio>", methods=['GET'])
-@jwt_required()
-def searchGuides(estado, municipio):
-
-    if estado and municipio != " ":
-        dados = guide.searchGuides(estado, municipio)
-    else:
-        if estado != " ":
-            dados = guide.searchGuidesByEstado(estado)
-        else:
-            dados = guide.searchGuidesByMunicipio(municipio)
-
-
-    return "ok", 200
+#</editor-fold>
