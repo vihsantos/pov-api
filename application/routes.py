@@ -196,6 +196,15 @@ def getPosts():
 
     return jsonify(posts), 200
 
+@app.route("/allPosts/<skip>/<take>", methods=['GET'])
+@jwt_required()
+def getAllPosts(skip, take):
+    posts = post.getPosts(skip, take)
+
+    if posts is None:
+        return "Nenhum post encontrado!", 404
+
+    return jsonify(posts), 200
 
 @app.route("/post/<id>", methods=['GET'])
 def getPostByID(id):

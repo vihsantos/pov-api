@@ -57,10 +57,6 @@ class PostRepository:
 
         return posts
 
-    def getTopPosts(self):
-        posts = self.collection.select(
-            'id, filename, stars').eq("stars", 5).order("data_criacao", desc=True).execute().data
-
     def getTopPostsByLocal(self):
         posts = supabase.rpc('ranking_by_local', params={}).execute().data
         return posts
@@ -69,10 +65,20 @@ class PostRepository:
         rankings = supabase.rpc('search_ranking_by_local', params={"nome": local}).execute().data
         return rankings
 
-    def getPosts(self):
-        posts = self.collection.select('id, filename, description, stars, localization(lat, long, local), user(id, '
-                                       'username), voos(*)').execute().data
-        print(posts)
+    def getPosts(self, take, skip):
+        posts = self.collection.select(
+            'id, filename, description, stars, localization(lat, long, local), '
+            'user(id, username, ...user_person(...person(profile)))').range(take,skip).order("data_criacao",
+                                                                                                     desc=True).execute().data
+
+        for post in posts:
+            url = self.bucket.create_signed_url(post['filename'], 180000)
+            post['image_url'] = url["signedURL"]
+            post.pop('filename')
+            profile = post['user']['profile']
+            post['user']['profile'] = person.getUrlIcon(profile)
+
+        return posts
 
     def removePost(self, post_id):
 
