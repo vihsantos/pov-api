@@ -199,6 +199,8 @@ def getPosts():
 @app.route("/allPosts/<skip>/<take>", methods=['GET'])
 @jwt_required()
 def getAllPosts(skip, take):
+    skip = int(skip)
+    take = int(take)
     posts = post.getPosts(skip, take)
 
     if posts is None:
