@@ -20,13 +20,15 @@ class PostRepository:
         self.collection.insert(post).execute()
 
     def findByID(self, ID):
-        post = self.collection.select('*, localization(lat, long, local), comment(*), voos(*), user(id, username)').eq(
+        post = self.collection.select('*, localization(lat, long, local), comment(*), voos(*), user(id, username, ...user_person(...person(profile)))').eq(
             "id", ID).execute().data
 
         url = self.bucket.create_signed_url(post[0]['filename'], 180000)
         post[0]['image_url'] = url["signedURL"]
         post[0].pop('filename')
         post[0].pop('user_id')
+        profile = post[0]['user']['profile']
+        post[0]['user']['profile'] = person.getUrlIcon(profile)
         return post
 
     def salvarPostImage(self, file, filename, tipo):
