@@ -155,6 +155,26 @@ def buscarUsuario(id):
     usuario["profileIcon"] = person.findUrlProfileIcon(id)
     return usuario, 200
 
+@app.route("/findUser/<email>/<username>", methods=['GET'])
+def buscarUsuarioPorUsernameEmail(email, username):
+    usuarioid = person.getUser(username, email)
+
+    if usuarioid == 0:
+        return "Usuário não encontrado", 404
+
+    return jsonify(usuarioid), 200
+
+@app.route("/alterarsenha/<id>", methods=['UPDATE'])
+def alterarSenha(id):
+    try:
+        senha = request.get_json()
+        user.alterarSenha(id, senha["senha"])
+
+        return "Senha alterada com sucesso!", 200
+
+    except APIError as e:
+        return "Ops! Algo de errado aconteceu.", 500
+
 #</editor-fold>
 
 #<editor-fold desc="Posts">

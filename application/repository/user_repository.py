@@ -25,10 +25,5 @@ class UserRepository:
     def findById(self, id):
         return self.collection.select('username, guide').eq("id", id).execute().data[0]
 
-    def findByUsername(self, username):
-        dado = self.collection.select('username').eq("username", username).execute().data
-        if dado.__len__() != 0:
-            return True
-
-        return False
-
+    def alterarSenha(self, id, novasenha):
+        self.collection.update({"password": novasenha}).eq("id", id).execute()

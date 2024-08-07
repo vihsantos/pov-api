@@ -48,3 +48,17 @@ class PersonRepository:
             return icon["signedURL"]
 
         return None
+
+    def getUser(self, username, email):
+        usuario = self.collection_userperson.select('person(nome, email), user(id, username)').eq("person.email", email).eq("user.username", username).execute().data[0]
+
+        if usuario["person"] is None:
+            return 0
+
+        if usuario["user"] is None:
+            return 0
+
+        if usuario is None:
+            return False
+
+        return usuario["user"]["id"];
