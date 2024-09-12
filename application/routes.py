@@ -337,6 +337,21 @@ def searchGuides(estado, municipio):
 
     return "ok", 200
 
+@app.route("/alterarContato/<contato>", methods=['UPDATE'])
+@jwt_required()
+def alterarContato(contato):
+    try:
+        usuario = get_jwt_identity()
+
+        guide.alterarContato(contato, usuario)
+
+        return "Alterado com sucesso", 200
+
+    except APIError as e:
+        return "Ops! Algo de errado aconteceu.", 500
+
+
+
 #</editor-fold>
 
 #<editor-fold desc="Trails">

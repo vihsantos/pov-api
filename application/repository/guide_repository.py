@@ -99,6 +99,13 @@ class GuideRepository:
     def getInfosGuide(self, user):
         guide_id = self.collection_userguide.select('guide_id').eq("user_id", user).execute().data[0]
 
-        guide = self.collection.select('cod_cadastur, data_vencimento, areaatuacao, estado, municipio').eq("id", guide_id["guide_id"]).execute().data[0]
+        guide = self.collection.select('cod_cadastur, data_vencimento, areaatuacao, estado, municipio, contato').eq("id", guide_id["guide_id"]).execute().data[0]
 
         return guide
+
+    def alterarContato(self, contato, user):
+        guide_id = self.collection_userguide.select('guide_id').eq("user_id", user).execute().data[0]
+
+        self.collection.update({"contato": contato}).eq("id", id).execute()
+
+
