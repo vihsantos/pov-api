@@ -24,6 +24,19 @@ class FollowersRepository:
     def getFollowingByID(self, id):
         return self.collection.select('*').eq("user_seguidor", id).execute().data
 
+    def getFollowingIDsByID(self, id):
+        users = self.collection.select('user_seguindo').eq("user_seguidor", id).execute().data
+
+        ids = []
+
+        for user in users:
+            id = int(user["user_seguindo"])
+            ids.append(id)
+
+        return ids
+
+
+
     def isFollower(self, seguidor):
         dado = self.collection.select('*').eq("user_seguidor", seguidor["user_seguidor"]).eq("user_seguindo", seguidor["user_seguindo"]).execute().data
 

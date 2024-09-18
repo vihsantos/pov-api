@@ -82,6 +82,22 @@ class PostRepository:
 
         return posts
 
+    def getPostsOfFollowing(self, take, skip, ids):
+        posts = (self.collection.select(
+            'id, filename, description, stars, localization(lat, long, local), '
+            'user(id, username, ...user_person(...person(profile)))').in_("user.id", ids)
+                 .
+                 range(take,skip).order("data_criacao", desc=True).execute().data)
+
+        for post in posts:
+            url = self.bucket.create_signed_url(post['filename'], 180000)
+            post['image_url'] = url["signedURL"]
+            post.pop('filename')
+            profile = post['user']['profile']
+            post['user']['profile'] = person.getUrlIcon(profile)
+
+        return posts
+
     def removePost(self, post_id):
 
         arquivo = self.collection.select('filename').eq("id", post_id).execute().data[0]["filename"]

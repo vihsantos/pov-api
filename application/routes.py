@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime
 
 from flask import request, jsonify
-from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, current_user
 from postgrest import APIError
 
 from application import app
@@ -276,6 +276,31 @@ def addVooInPost(id_post):
 
     except APIError as e:
         return "Ops! Algo de errado aconteceu.", 500
+
+@app.route("/getPostFollowing/<skip>/<take>", methods=['GET'])
+@jwt_required()
+def getPostsOfFollowing(skip, take):
+    try:
+        skip = int(skip)
+        take = int(take)
+
+        current_user = get_jwt_identity()
+
+        ids = followers.getFollowingIDsByID(current_user)
+
+        if ids.__len__() == 0:
+            return "Usuário não segue nenhuma outra pessoa.", 404
+
+        posts = post.getPostsOfFollowing(take, skip, ids)
+
+        if posts.__len__() == 0:
+            return "Nenhum post encontrado.", 404
+
+        return jsonify(posts), 200
+
+    except APIError as e:
+        return "Ops! Algo de errado aconteceu.", 500
+
 #</editor-fold>
 
 #<editor-fold desc="Ranking">
