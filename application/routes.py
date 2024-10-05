@@ -277,6 +277,18 @@ def addVooInPost(id_post):
     except APIError as e:
         return "Ops! Algo de errado aconteceu.", 500
 
+@app.route("/removevooinpost/<voo>", methods=['DELETE'])
+@jwt_required()
+def removeVooInPost(voo):
+    try:
+        current_user = get_jwt_identity()
+
+        voos.removeVoo(voo)
+        return "Foi!!", 200
+
+    except APIError as e:
+        return "Ops! Algo de errado aconteceu.", 500
+
 @app.route("/getPostFollowing/<skip>/<take>", methods=['GET'])
 @jwt_required()
 def getPostsOfFollowing(skip, take):

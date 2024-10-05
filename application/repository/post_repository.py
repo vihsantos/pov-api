@@ -28,7 +28,9 @@ class PostRepository:
         post[0].pop('filename')
         post[0].pop('user_id')
         profile = post[0]['user']['profile']
-        post[0]['user']['profile'] = person.getUrlIcon(profile)
+        if profile is not None:
+            post[0]['user']['profile'] = person.getUrlIcon(profile)
+
         return post
 
     def salvarPostImage(self, file, filename, tipo):
@@ -44,7 +46,8 @@ class PostRepository:
             post['image_url'] = url["signedURL"]
             post.pop('filename')
             profile = post['user']['profile']
-            post['user']['profile'] = person.getUrlIcon(profile)
+            if profile is not None:
+                post['user']['profile'] = person.getUrlIcon(profile)
 
         return posts
 
@@ -78,25 +81,33 @@ class PostRepository:
             post['image_url'] = url["signedURL"]
             post.pop('filename')
             profile = post['user']['profile']
-            post['user']['profile'] = person.getUrlIcon(profile)
+            if profile is not None:
+                post['user']['profile'] = person.getUrlIcon(profile)
 
         return posts
 
     def getPostsOfFollowing(self, take, skip, ids):
         posts = (self.collection.select(
             'id, filename, description, stars, localization(lat, long, local), '
-            'user(id, username, ...user_person(...person(profile)))').in_("user.id", ids)
-                 .
-                 range(take,skip).order("data_criacao", desc=True).execute().data)
+            'user(id, username, ...user_person(...person(profile)))').range(take,skip).order("data_criacao", desc=True).execute().data)
+
+        postfiltrados = []
 
         for post in posts:
+            id = post['user']['id']
+
+            if ids.__contains__(id):
+                postfiltrados.append(post)
+
+        for post in postfiltrados:
             url = self.bucket.create_signed_url(post['filename'], 180000)
             post['image_url'] = url["signedURL"]
             post.pop('filename')
             profile = post['user']['profile']
-            post['user']['profile'] = person.getUrlIcon(profile)
+            if profile is not None:
+                post['user']['profile'] = person.getUrlIcon(profile)
 
-        return posts
+        return postfiltrados
 
     def removePost(self, post_id):
 
@@ -107,13 +118,4 @@ class PostRepository:
         self.bucket.remove([arquivo])
 
         self.collection.delete().eq("id", post_id).execute()
-
-
-    def metodoTeste(self):
-
-        posts = self.collection.select(
-            'id, filename, description, stars, localization(lat, long, local), '
-            'user(id, username,...user_person(...person(profile)))').eq("stars", 5).limit(10).order("data_criacao", desc=True).execute().data
-
-        profileicon =posts[0]['user']['profile']
 

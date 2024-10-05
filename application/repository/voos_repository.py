@@ -15,4 +15,4 @@ class VoosRepository:
         self.collection.insert(voo).execute()
 
     def removeVoo(self, voo):
-        self.collection.delete().eq("id", voo['id']).execute()
+        self.collection.delete().eq("id", voo).execute()
