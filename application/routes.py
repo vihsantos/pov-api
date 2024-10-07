@@ -1,5 +1,6 @@
 import json
 import uuid
+from crypt import methods
 from datetime import datetime
 
 from flask import request, jsonify
@@ -171,6 +172,16 @@ def alterarSenha(id):
         user.alterarSenha(id, senha["senha"])
 
         return "Senha alterada com sucesso!", 200
+
+    except APIError as e:
+        return "Ops! Algo de errado aconteceu.", 500
+
+@app.route("/isGuide/<id>", methods=['GET'])
+def isGuide(id):
+    try:
+        isGuide = user.isGuide(id)
+
+        return jsonify(isGuide), 200
 
     except APIError as e:
         return "Ops! Algo de errado aconteceu.", 500

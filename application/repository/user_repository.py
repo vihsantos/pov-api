@@ -11,6 +11,7 @@ class UserRepository:
 
     def __init__(self):
         self.collection = supabase.table('user')
+        self.collection_userguide = supabase.table('user_guide')
         self.bucket = supabase.storage.from_('profile')
 
     def createUser(self, user):
@@ -27,3 +28,11 @@ class UserRepository:
 
     def alterarSenha(self, id, novasenha):
         self.collection.update({"password": novasenha}).eq("id", id).execute()
+
+    def isGuide(self, id):
+        guia = self.collection_userguide.select('*').eq("user_id", id).execute()
+
+        if guia.count is not None:
+            return True
+
+        return False
